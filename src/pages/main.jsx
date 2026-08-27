@@ -1,5 +1,13 @@
-function Main(){
+import { useState } from "react";
 
+function Main(){
+   const [lod,setLod] = useState(false)
+
+   const handleL = () => {
+    setLod(true)
+    setTimeout(() => {setLod(false);
+      alert("done")},2000)
+   }
     return(
         <>
         <div  style={{
@@ -8,8 +16,14 @@ function Main(){
         background: "white",
         padding: "40px",
       }}>
-<h2>main screen</h2>
 
+
+       <h2>main screen</h2>
+
+      </div>
+      <div>
+    <button onClick={handleL} disabled={lod}>{lod ? "loading":"submit"}</button>
+      {lod && <p>loading pleese wait</p>}
       </div>
         
         </>
