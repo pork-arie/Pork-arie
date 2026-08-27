@@ -1,6 +1,6 @@
 Hi, I'm Anghel 👋
 
-Information Technology student and freelance web developer based in the Philippines. I build web systems for real use — the kind that have to survive actual users, messy data, and edge cases nobody planned for.
+Information Technology student and freelance web developer based in the Philippines. I build web systems for real use  the kind that have to survive actual users, messy data, and edge cases nobody planned for.
 
 Most of what I know came from shipping things, Self taught and then debugging them at 2 a.m. 
 
