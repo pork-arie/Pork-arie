@@ -13,7 +13,7 @@ Data · Firebase (Firestore, Auth) · MongoDB  · Postresql(neon)
 Mobile · Kotlin · Jetpack Compose (learning) Also · Git · Figma · graphic design tools
 
 Certifications
-Digital Marketing — HubSpot
+Digital Marketing (HubSpot)
 React Development
 
 What I care about
