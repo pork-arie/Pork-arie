@@ -1,16 +1,26 @@
-# React + Vite
+Hi, I'm Anghel 👋
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Information Technology student and freelance web developer based in the Philippines. I build web systems for real use  the kind that have to survive actual users, messy data, and edge cases nobody planned for.
 
-Currently, two official plugins are available:
+Most of what I know came from shipping things, Self taught and then debugging them at 2 a.m. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+I take on freelance web development and graphic design work for startups and small businesses.
 
-## React Compiler
+Tech I work with
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Frontend · HTML · CSS · JavaScript · React · Tailwind CSS Backend · Node.js · PHP 
+Data · Firebase (Firestore, Auth) · MongoDB  · Postresql(neon)
+Mobile · Kotlin · Jetpack Compose (learning) Also · Git · Figma · graphic design tools
 
-## Expanding the ESLint configuration
+Certifications
+Digital Marketing (HubSpot)
+React Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+What I care about
+Systems that are actually deployable, not just demo-able
+Reading the spec before writing the code — a lot of bugs turn out to be requirement bugs, not syntax ones
+Clean module boundaries, honest documentation, and knowing which file actually wins at runtime
+
+Reach me
+📫 bangcaleanghel@gmail.com
+💼 LinkedIn - www.linkedin.com/in/ariel-angel-bangcale-38461434b
