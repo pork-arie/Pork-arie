@@ -1,30 +1,39 @@
-import { useState } from "react";
+import AnimatedContent from "../components/animate";
+import d1 from '../assets/d1.jpg'
+import peice from '../assets/piece.jpg'
+import PixelTransition from "../components/pixel";
+import { Link } from "react-router-dom";
+
+
 
 function Main(){
-   const [lod,setLod] = useState(false)
-
-   const handleL = () => {
-    setLod(true)
-    setTimeout(() => {setLod(false);
-      alert("done")},2000)
-   }
+ 
     return(
         <>
-        <div  style={{
-        position: "relative",
-        minHeight: "100vh",
-        background: "white",
-        padding: "40px",
-      }}>
+        
+        <AnimatedContent duration={1.2} distance={60} delay={0.3}>
+        <section className="main">
 
 
-       <h2>main screen</h2>
 
-      </div>
-      <div>
-    <button onClick={handleL} disabled={lod}>{lod ? "loading":"submit"}</button>
-      {lod && <p>loading pleese wait</p>}
-      </div>
+          <div className="aboutc">
+            <div className="ab1">
+             <h2 className="mtext" >Hello! I'm Ariel Angel</h2>
+             <p className="mtext">Frontend <strong>Web developer</strong>  passionate about React, clean UI, and AI innovation. 
+             <br />I turn ideas into interactive web experiences and explore how AI can enhance the way we build and use apps.
+              </p>
+            </div>
+
+             <div className="ab2">
+              <PixelTransition 
+              firstContent={<img src={d1} alt="poging lalaki" />}
+              secondContent={<img src={peice}/>}
+              />
+              
+             </div>
+          </div>
+        </section>
+        </AnimatedContent>
         
         </>
     )

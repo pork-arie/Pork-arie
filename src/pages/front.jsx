@@ -1,15 +1,14 @@
+import CursorGrid from "../components/CursorGrid";
+import AnimatedContent from "../components/animate";
 
 
-
-function Front({progress}){
+function Front(){
+  
  return(
     <>
-    <section className="front"style={{
-        opacity: 1 - progress,
-        pointerEvents: progress === 1 ? "none" : "auto",
-      }}
-    >
-    <h2>front</h2>
+    <section className="front">
+      <CursorGrid color="#0A122A" gridOpacity={0.06} />
+      <AnimatedContent delay={0.3} duration={1}><h1 className="name">ANGHEL</h1></AnimatedContent>
     </section>
     
     </>

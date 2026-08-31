@@ -1,33 +1,35 @@
 import { useEffect, useState,useRef } from 'react'
-import {Link} from 'react-router-dom'
+import {Link,BrowserRouter,Routes,Route} from 'react-router-dom'
 import  Front  from './pages/front'
 import Main  from './pages/main'
 
+
 import './App.css'
+import './nav.css'
+import Footer from './parts/footer'
 
 function App() {
-  const ref =useRef(null);
-  const[p,setP] = useState(0)
-
-  useEffect(() => {
-    const pagscroll = () => setP(Math.min(window.scrollY/ window.innerHeight,1));
-    window.addEventListener("scroll",pagscroll);
-    return () => window.removeEventListener("scroll",pagscroll)
-  },[]);
+  
    
-  const kadtoMain = () =>
-     ref.current.scrollIntoView({behavior:"smooth"})
+
 
   return (
     <>
-    <Front progress={p} onEnter={kadtoMain}/>
     
-    <div style={{ height: "100vh" }} />
+    <BrowserRouter>
+     <Routes>
+        <Route path='/' element={<Front/>}/>
+        <Route path='/main' element={<Main/>}/>
+      </Routes>
+    </BrowserRouter>
+    <Main/>
+    <Footer/>
+    
+     
+   
+    
+    
 
-    <div ref={ref}>
-      <Main/>
-    </div>
-    
     </>
   )
  

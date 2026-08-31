@@ -1,0 +1,29 @@
+nav {
+  display: flex;
+  background-color: violet;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 30px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+}
+
+nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav a {
+  text-decoration: none;
+  color: inherit;
+}
+
+nav a:hover {
+  color: #C4F82A;
+}
