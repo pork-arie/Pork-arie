@@ -68,7 +68,7 @@ body{
 
 .main{
   
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background-color: var(--bg);
   
@@ -126,12 +126,16 @@ strong{
   width: 100%;
   background-color: var(--bg);
 }
+
+.p1{
+  color: white;
+}
         
 /*                  */
-.footer{
+.footer p{
   text-align: center;
   width: 100%;
-  
+  justify-content: center;
  
 }
 

@@ -1,0 +1,260 @@
+
+.projCard{
+   
+   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
+
+  width: 20vw;
+
+  
+  background: white; 
+  border-radius: 15px;
+  padding: 20px; 
+  margin: 0 auto;
+  
+  transition: 0.5s ease;
+  
+
+}
+.projCard:hover{
+    transform: scale(1.01);
+    box-shadow: 0 0 10px white;
+}
+
+
+.check{
+    padding: 20px;
+    font-size: 20px;
+    margin-top: 10px;
+
+    border-radius: 20px;
+    border: none;
+    background-color: var(--bg);
+    color: white;
+    margin-right: 60%;
+    
+    transition: 0.5s ease;
+}
+
+.projCard h2,p{
+text-align: left;
+padding: 10px;
+
+
+
+}
+.projCard h2{
+margin-top: 20px;
+}
+
+.certlist{
+    color: black;
+    width: 1200px;
+}
+
+
+
+
+
+
+
+.bcon{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+#bt{
+  background-color: transparent;
+  
+  border: none;
+  color: white;
+  position: relative;
+}
+#bt::after{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 5px;
+    width: 0;
+    height: 4px;
+    margin-top: 70px;
+    bottom: -4px;
+    background-color: white;
+    transition: width 0.4s ease-in-out;
+
+}
+#bt:hover::after{
+    width: 100%;
+}
+
+
+
+.proj {
+  position: relative; 
+  overflow: hidden; 
+  z-index: 1;
+  min-height: 100vh; 
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+.big-bg-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  
+  
+  font-size: clamp(30rem, 25vw, 40rem); 
+  
+  font-weight: 900;
+  font-family: 'aquarium', sans-serif; 
+  
+
+  color: rgba(255, 255, 255, 0.05);
+  
+  z-index: -1; 
+  pointer-events: none; 
+  user-select: none;
+  
+
+  
+}
+.scroll{
+    animation: Bscroll 10s linear infinite;
+}
+
+@keyframes Bscroll {
+  0% { transform: translate(-50%, -50%) translateX(-100px); }
+  50% { transform: translate(-50%, -50%) translateX(100px); }
+  100% { transform: translate(-50%, -50%) translateX(-100px); }
+}
+
+
+
+.p1, .bcon, .projlist {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Main Section */
+.proj {
+  position: relative; 
+  overflow: hidden; 
+  z-index: 1;
+  min-height: 100vh; 
+  
+  
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+.certlist, .projlist {
+  
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 90%;
+  max-width: 2000px;
+  margin: 0 auto;
+  padding-bottom: 50px;
+
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+}
+
+.certlist::-webkit-scrollbar, .projlist::-webkit-scrollbar {
+  height: 8px;
+}
+.certlist::-webkit-scrollbar-thumb, .projlist::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+/* The Card */
+.projCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
+
+  
+  background: white; 
+  border-radius: 15px;
+  padding: 20px; 
+  border: 1px solid #333;
+  
+  transition: 0.5s ease;
+  flex: 0 0 350px; 
+  scroll-snap-align: center;
+  
+}
+
+.projCard:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* The Image */
+.projCard img {
+  width: 100%;
+  height: auto;
+  max-height: 350px; 
+  object-fit: contain; 
+  border-radius: 10px;
+  background: white; /* Keeps the certificate looking like paper */
+  border: 1px solid #333;
+}
+
+/* The Text */
+.projCard h2, .projCard p {
+  text-align: left;
+  margin: 5px 0;
+  padding: 0; /* Removed weird inner padding */
+}
+
+.projCard h2 {
+  color: var(--bg);
+  margin-top: 10px;
+  font-size: 1.2rem;
+}
+
+.projCard p {
+  color: var(--bg);
+  font-size: 0.9rem;
+}
+
+/* The Check Button */
+.check {
+  padding: 12px 24px;
+  font-size: 1rem;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--bg);
+  color: white;
+  
+  
+  align-self: flex-start; 
+
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
