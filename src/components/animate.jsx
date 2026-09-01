@@ -9,7 +9,7 @@ const AnimatedContent = ({
   container,
   distance = 100,
   direction = 'vertical',
-  reverse = false,
+  reverse = true,
   duration = 0.8,
   ease = 'power3.out',
   initialOpacity = 0,

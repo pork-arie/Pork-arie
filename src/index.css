@@ -3,10 +3,14 @@
 @font-face {
   font-family: 'ougther';
   src: url('./assets/fonts/Oughter.otf') format('opentype');
-  
   font-style: normal;
-
 }
+@font-face {
+  font-family: 'aquarium';
+  src: url('./assets/fonts/aquarium.otf') format('opentype');
+}
+
+
 
 *{
   box-sizing: border-box;
@@ -17,6 +21,7 @@
 :root{
   --txt: #0A0A0A;
   --bg: #0A122A;
+  --p: #D0E6FD;
 }
 
 body{
@@ -69,6 +74,11 @@ body{
   
 }
 
+strong{
+  color: var(--p);
+}
+
+
 
 .mtext{
   color: white;
@@ -85,8 +95,8 @@ body{
   padding: 30px;
   margin-top: 30%;
   margin-left: 20%;
-  
 }
+
 .ab1 h2{
   font-size: 50px;
   font-family: 'ougther';
@@ -110,11 +120,57 @@ body{
   width: 600px;
 
 }
+/* */
+.proj{
+  height: 100vh;
+  width: 100%;
+  background-color: var(--bg);
+}
         
 /*                  */
 .footer{
   text-align: center;
   width: 100%;
-  height: 100%;
-  margin: 100px;
+  
+ 
+}
+
+
+/* marq */
+.marq-con{
+  
+  overflow: hidden;
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 20px;
+ 
+}
+.track{
+  display: flex;
+  width: max-content;
+  animation: scroll 40s linear infinite;
+}
+.skills{
+  height: 60px;
+}
+.content{
+  display: flex;
+  align-items: center;
+  
+  gap: 40px;
+  padding-right: 40px;
+  font-size: 40px;
+  transition: 0.3s  ease;
+}
+
+@keyframes scroll {
+  0%{transform: translateX(0);}
+  100%{transform: translateX(-50%);}
+  
+}
+.content span:hover{
+  transform: scale(1.1);
+}
+.marq-con:hover .track{
+  animation-play-state: paused;
 }

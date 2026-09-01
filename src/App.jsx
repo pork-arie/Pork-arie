@@ -6,30 +6,32 @@ import Main  from './pages/main'
 
 import './App.css'
 import './nav.css'
+import ParallaxContainer from './components/ParallaxContainer'
 import Footer from './parts/footer'
+import Stack from './pages/stack'
+import Projects from './pages/projects'
+import Nav from './parts/nav'
+
 
 function App() {
   
-   
-
+ 
 
   return (
     <>
     
-    <BrowserRouter>
-     <Routes>
-        <Route path='/' element={<Front/>}/>
-        <Route path='/main' element={<Main/>}/>
-      </Routes>
-    </BrowserRouter>
-    <Main/>
-    <Footer/>
-    
-     
-   
-    
+      <Front/>
+      <Nav/>
+      <Main/>
+      <Stack/>
+      <Projects/>
+      <Footer/>
     
 
+
+      
+
+     
     </>
   )
  
