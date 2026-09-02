@@ -7,7 +7,7 @@ nav {
   box-shadow: 0 4px 8px rgba(250, 249, 249, 0.1);
   justify-content: space-evenly;
   align-items: center;
-  padding: 20px 40px;
+  padding: 10px 40px;
 
   border-radius: 20px;
   margin: 20px auto 0; 
@@ -35,9 +35,11 @@ nav ul {
 nav a {
   font-family: 'aquarium';
   text-decoration: none;
+  -webkit-text-stroke: 0.1px black;
+  
   
   color: white;
-  font-size: clamp(1.5rem,1vw,1.5rem);
+  font-size: clamp(1.3rem,1vw,1.3rem);
   
   position: relative;
   padding: 8px 16px;
@@ -82,13 +84,7 @@ nav a:hover::after {
 
 
 /* button */
-.bcon{
-  text-align: center;
-  margin-bottom: 50px;
-  
-  
-  
-}
+
 .p1{
   text-align: center;
   font-size: 40px;

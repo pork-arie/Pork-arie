@@ -6,11 +6,16 @@ import Main  from './pages/main'
 
 import './App.css'
 import './nav.css'
-import ParallaxContainer from './components/ParallaxContainer'
+import './css/contact.css'
+import './css/feature.css'
+
 import Footer from './parts/footer'
 import Stack from './pages/stack'
 import Projects from './pages/projects'
 import Nav from './parts/nav'
+import Contact from './pages/contact'
+import Featured from './pages/featured'
+import Detail from './pages/detail'
 
 
 function App() {
@@ -19,21 +24,28 @@ function App() {
 
   return (
     <>
-    
-      <Front/>
-      <Nav/>
-      <Main/>
-      <Stack/>
-      <Projects/>
-      <Footer/>
-    
-
-
-      
-
-     
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Front />
+                <Nav />
+                <Main />
+                <Stack />
+                <Featured />
+                <Projects />
+                <Contact />
+              </>
+            }
+          />
+          <Route path='/detail/:id' element={<Detail/>}/>
+        </Routes>
+      </BrowserRouter>
+      <Footer />
     </>
-  )
+  );
  
 }
 

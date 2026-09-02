@@ -1,0 +1,55 @@
+#feat{
+    height: inherit;
+    display: flex;
+    flex-direction: column;
+
+}
+.fcard{
+        display: flex;
+        flex-direction: column;
+        margin: 30px 50px;
+        gap: 20px;
+        padding: 20px;
+
+}
+.fcard-con{
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.fcard-con:nth-child(even){
+    flex-direction: row-reverse;
+}
+
+
+
+#fimg{
+    height: 400px;
+    width: 800px;
+    border-radius: 10px;
+}
+.fimg{
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 8px 12px rgba(22, 5, 96, 0.3);
+    border-radius: 20px;
+}
+.fname p{
+    line-height: 50px;
+    
+}
+
+.fh{
+    text-align: center;
+    padding: 20px;
+    padding-top: 50px;
+    font-family: 'aquarium';
+    font-size: clamp(3rem,1vw,1rem);
+}
+
+.dotted-bg {
+  
+  background-image: radial-gradient(circle, rgba(22, 5, 96, 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

@@ -44,7 +44,7 @@ function Main(){
              >
 
               <PixelTransition 
-              firstContent={<img src={d1} alt="poging lalaki" />}
+              firstContent={<img src={d1} alt="poging lalaki" loading="lazy"/>}
               secondContent={<img src={peice} loading="lazy"/>}
               />
               
