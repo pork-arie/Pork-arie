@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 
 import { project } from "../data/data";
 import { div } from "framer-motion/client";
+import { Helmet } from "react-helmet-async";
 
 function Detail() {
   const { id } = useParams();
@@ -24,6 +25,12 @@ function Detail() {
 
   return (
     <>
+      <Helmet>
+        <title>{pro.name} | Ariel Angel Portfolio</title>
+        <meta name="description" content={pro.description} />
+        <meta property="og:title" content={pro.name} />
+      </Helmet>
+
       <section className="D">
         <button className="back" onClick={() => nav("/")}>
           back
@@ -61,19 +68,22 @@ function Detail() {
                 src={pro.img}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img)} loading="lazy"
+                onClick={() => setView(pro.img)}
+                loading="lazy"
               />
               <img
                 src={pro.img2}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img2)} loading="lazy"
+                onClick={() => setView(pro.img2)}
+                loading="lazy"
               />
               <img
                 src={pro.img3}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img3)} loading="lazy"
+                onClick={() => setView(pro.img3)}
+                loading="lazy"
               />
             </div>
             <button className="dscroll rigth" onClick={rigth}>
@@ -100,10 +110,11 @@ function Detail() {
           <p>{pro.description}</p>
           <div className="stack-tags">
             {pro.stack.map((tech) => (
-                <span key={tech} className="tech-pill">{tech}</span>
+              <span key={tech} className="tech-pill">
+                {tech}
+              </span>
             ))}
           </div>
-
         </div>
 
         {view && (
