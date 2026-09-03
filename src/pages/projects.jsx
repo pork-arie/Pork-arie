@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { certificates, project } from "../data/data.jsx";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Projects() {
   const [show, setShow] = useState("proj");
@@ -29,21 +29,60 @@ function Projects() {
   const [showProjArrows, setShowProjArrows] = useState(false);
   const [showCertArrows, setShowCertArrows] = useState(false);
 
+  // Track whether we're on a small (tablet/mobile) screen
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsSmallScreen(window.innerWidth <= 1024);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  // Arrows show if screen is small OR there are enough items to need scrolling
   useEffect(() => {
     const checkArrows = () => {
-      setShowProjArrows(project.length >= 5);
-      setShowCertArrows(certificates.length >= 5);
+      setShowProjArrows(isSmallScreen || project.length > 1);
+      setShowCertArrows(isSmallScreen || certificates.length > 1);
     };
 
     const timeout = setTimeout(checkArrows, 100);
-
     window.addEventListener("resize", checkArrows);
 
     return () => {
       clearTimeout(timeout);
       window.removeEventListener("resize", checkArrows);
     };
-  }, [show, project.length, certificates.length]);
+  }, [show, project.length, certificates.length, isSmallScreen]);
+
+  // Mouse drag-to-scroll for the certificate list (desktop mouse users)
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
+
+  const handleMouseDown = (e) => {
+    isDown.current = true;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftStart.current = scrollRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+  };
+  const handleMouseUp = () => {
+    isDown.current = false;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDown.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = x - startX.current;
+    scrollRef.current.scrollLeft = scrollLeftStart.current - walk;
+  };
 
   return (
     <>
@@ -88,10 +127,7 @@ function Projects() {
                 {showProjArrows && (
                   <button className="nav-arrow left" onClick={sLeft}></button>
                 )}
-                <motion.div
-                  className={`projlist ${project.length > 5 ? "many" : "few"}`}
-                  ref={sRef}
-                >
+                <motion.div className="projlist" ref={sRef}>
                   {project.map((pro) => (
                     <div className="projCard" key={pro.id}>
                       <img src={pro.img} loading="lazy" />
@@ -119,7 +155,14 @@ function Projects() {
                   ></button>
                 )}
 
-                <div className="certlist" ref={scrollRef}>
+                <div
+                  className="certlist"
+                  ref={scrollRef}
+                  onMouseDown={handleMouseDown}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseUp={handleMouseUp}
+                  onMouseMove={handleMouseMove}
+                >
                   {certificates.map((prod) => (
                     <motion.div className="projCard" key={prod.id}>
                       <img src={prod.img} loading="lazy" />
