@@ -1,4 +1,379 @@
 
-#contact{
-    height: 100vh;
+
+
+/* Contact Section */
+#contact {
+    min-height: 80vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    
+    align-items: center;
+    
+    padding: 50px 20px;
+    color:var(--bg);
+    
+}
+
+#contact h1 {
+    font-family: 'ougther', sans-serif; /* Matches your nav */
+    font-size: clamp(1rem, 3vw, 4rem);
+    
+    text-transform: uppercase;
+   
+    
+}
+
+/* The outer wrapper - Centers everything vertically and horizontally */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh; /* Adjust to fit your page */
+  width: 100%;
+  padding: 20px;
+}
+
+/* The form itself - Stacks inputs vertically */
+form {
+  background: var(--bg); /* Glass effect matching your site */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  
+  /* 👈 IMPORTANT: Flexbox for stacking! */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Space between inputs */
+
+  width: 100%;
+  max-width: 600px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Inputs and Textarea */
+form input,
+form textarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: white;
+  color: rgb(12, 12, 12);
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+form textarea {
+  resize: vertical; /* Allows the user to resize the height */
+  min-height: 120px;
+}
+
+/* Focus glow on inputs */
+form input:focus,
+form textarea:focus {
+  border-color: var(--bg); /* Neon cyan */
+  box-shadow: 0 0 10px rgba(21, 21, 21, 0.5);
+}
+
+/* Labels */
+form label {
+  font-size: 0.9rem;
+  color: white;
+  margin-bottom: 8px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* The Button - Fixed size and width! */
+form button {
+  width: 100%; /* Stretches to fill the form */
+  padding: 15px;
+  border-radius: 10px;
+  border: none;
+  background: white;
+  color: #191111;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+/* Button hover effect */
+form button:hover {
+  background: #9d9898;
+  box-shadow: 0 0 20px rgba(11, 11, 11, 0.6);
+  transform: translateY(-2px);
+}
+
+form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  form {
+    padding: 20px;
+  }
+}
+
+
+
+.what{
+    display: flex;
+    flex-direction: column;
+}
+.what h3,h1{
+    font-family: 'ougther';
+    font-size: 40px;
+    color: white;
+}
+
+/* Container for the section */
+.what {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 50px 0;
+  
+}
+
+.what h3 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  text-shadow: 0 0 15px rgba(2, 2, 2, 0.5); /* Matches your cyan glow */
+}
+
+/* Container for the pills */
+.offer-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  max-width: 800px;
+}
+
+/* The Pill Base */
+.offer-tags span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 999px; /* The pill shape */
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: default;
+  transition: all 0.3s ease;
+  
+  /* Glassmorphism background */
+  background: white;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Make them "Different" - Alternating Colors */
+.offer-tags span:nth-child(odd) {
+  border: 1px solid rgba(17, 48, 54, 0.6); /* Cyan Border */
+  box-shadow: 0 0 10px rgba(0, 216, 255, 0.1);
+}
+
+.offer-tags span:nth-child(even) {
+  border: 1px solid rgba(50, 79, 129, 0.6); /* Purple Border */
+  box-shadow: 0 0 10px rgba(157, 0, 255, 0.1);
+}
+
+/* Hover effect: Pop and Glow */
+.offer-tags span:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: white;
+  color: #191111;
+  font-weight: bold;
+}
+
+.offer-tags span:nth-child(odd):hover {
+  box-shadow: 0 0 20px rgba(0, 216, 255, 0.8); /* Strong Cyan Glow */
+}
+
+.offer-tags span:nth-child(even):hover {
+  box-shadow: 0 0 20px rgba(157, 0, 255, 0.8); /* Strong Purple Glow */
+}
+
+
+
+
+
+
+.process-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--bg);
+}
+
+.process-title {
+  font-family: 'aquarium', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 60px;
+  text-align: center;
+  
+}
+
+/* The container that holds the vertical line and steps */
+.process-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+}
+
+/* The static gray background line */
+.process-line {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* The animated cyan line that scales down as you scroll */
+.process-line-animated {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #00d8ff;
+  box-shadow: 0 0 15px rgba(0, 216, 255, 0.7);
+  transform-origin: top; /* Draws from top to bottom */
+}
+
+/* The list of steps */
+.process-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+/* Each individual step */
+.process-step {
+  position: relative;
+  padding-left: 80px; /* Leaves space for the line and dot */
+  min-height: 80px;
+}
+
+/* The glowing dot on the line */
+.process-dot {
+  position: absolute;
+  left: 4px; /* Centers it on the 2px line */
+  top: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--bg);
+  transition: border-color 0.3s;
+  cursor: pointer;
+  z-index: 2; /* Sits on top of the line */
+}
+
+.process-dot:hover {
+  background: #00d8ff;
+  color: #191111;
+}
+
+/* The text content next to the dot */
+.step-content {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 15px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.step-content:hover {
+  transform: translateX(10px); /* Slides to the right on hover */
+  border-color: var(--bg);
+}
+
+.step-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: var(--bg);
+}
+
+.step-content p {
+  color: #000000;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .process-step {
+    padding-left: 50px;
+  }
+  .process-dot {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+}
+
+
+
+
+/* 1. Make the section the container for the dots */
+#contact {
+  position: relative; 
+  overflow: hidden; 
+  
+  /* IMPORTANT: Your #contact section doesn't have a background yet.
+     If it's transparent, the body's white background will hide your white dots!
+     So we add your dark blue background here. */
+  background-color: var(--bg); 
+  z-index: 1; 
+}
+
+/* 2. Create the dots */
+#contact::after {
+  content: '';
+  position: absolute;
+  bottom: 0; 
+  left: 0;
+  width: 100%;
+  height: 300px; /* Adjust this to change how high the dots go */
+  
+  /* The Dot Pattern */
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+  
+  /* The Gradient Fade - Fades out as it goes up! */
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  mask-image: linear-gradient(to top, black 0%, transparent 100%);
+  
+  z-index: 0; /* Puts it behind the form */
+  pointer-events: none; /* Makes sure you can still click the form */
+}
+
+/* 3. Keep the form and text ON TOP of the dots */
+#contact > * {
+  position: relative;
+  z-index: 2; 
 }

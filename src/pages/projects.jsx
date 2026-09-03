@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { certificates, project } from "../data/data.jsx";
@@ -7,7 +7,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 function Projects() {
   const [show, setShow] = useState("proj");
   const scrollRef = useRef(null);
-  const nav = useNavigate()
+  const sRef = useRef(null);
+  const nav = useNavigate();
 
   const scrollLeft = () => {
     scrollRef.current?.scrollBy({ left: -350, behavior: "smooth" });
@@ -16,7 +17,33 @@ function Projects() {
     scrollRef.current?.scrollBy({ left: 350, behavior: "smooth" });
   };
 
+  const sLeft = () => {
+    sRef.current?.scrollBy({ left: -350, behavior: "smooth" });
+  };
+  const sRight = () => {
+    sRef.current?.scrollBy({ left: 350, behavior: "smooth" });
+  };
+
   const [sel, setSel] = useState(null);
+
+  const [showProjArrows, setShowProjArrows] = useState(false);
+  const [showCertArrows, setShowCertArrows] = useState(false);
+
+  useEffect(() => {
+    const checkArrows = () => {
+      setShowProjArrows(project.length >= 5);
+      setShowCertArrows(certificates.length >= 5);
+    };
+
+    const timeout = setTimeout(checkArrows, 100);
+
+    window.addEventListener("resize", checkArrows);
+
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener("resize", checkArrows);
+    };
+  }, [show, project.length, certificates.length]);
 
   return (
     <>
@@ -57,22 +84,40 @@ function Projects() {
             transition={{ duration: 0.3 }}
           >
             {show === "proj" ? (
-              <motion.div className="projlist">
-                {project.map((pro) => (
-                  <div className="projCard" key={pro.id}>
-                    <img src={pro.img} loading="lazy" />
-                    <h2>{pro.name}</h2>
-                    
-                    <button className="check" onClick={() => nav(`/detail/${pro.id}`)}>Details</button>
-                  </div>
-                ))}
-              </motion.div>
+              <div className="slider-wrapper">
+                {showProjArrows && (
+                  <button className="nav-arrow left" onClick={sLeft}></button>
+                )}
+                <motion.div
+                  className={`projlist ${project.length > 5 ? "many" : "few"}`}
+                  ref={sRef}
+                >
+                  {project.map((pro) => (
+                    <div className="projCard" key={pro.id}>
+                      <img src={pro.img} loading="lazy" />
+                      <h2>{pro.name}</h2>
+
+                      <button
+                        className="check"
+                        onClick={() => nav(`/detail/${pro.id}`)}
+                      >
+                        Details
+                      </button>
+                    </div>
+                  ))}
+                </motion.div>
+                {showProjArrows && (
+                  <button className="nav-arrow right" onClick={sRight}></button>
+                )}
+              </div>
             ) : (
               <div className="slider-wrapper">
-                <button
-                  className="nav-arrow left"
-                  onClick={scrollLeft}
-                ></button>
+                {showCertArrows && (
+                  <button
+                    className="nav-arrow left"
+                    onClick={scrollLeft}
+                  ></button>
+                )}
 
                 <div className="certlist" ref={scrollRef}>
                   {certificates.map((prod) => (
@@ -88,10 +133,12 @@ function Projects() {
                   ))}
                 </div>
 
-                <button
-                  className="nav-arrow right"
-                  onClick={scrollRight}
-                ></button>
+                {showCertArrows && (
+                  <button
+                    className="nav-arrow right"
+                    onClick={scrollRight}
+                  ></button>
+                )}
               </div>
             )}
           </motion.div>

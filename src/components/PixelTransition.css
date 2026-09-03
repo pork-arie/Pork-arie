@@ -42,3 +42,14 @@
   display: none;
   position: absolute;
 }
+
+
+@media (max-width: 768px) {
+  .pixelated-image-card {
+    width: 80vw;              /* Takes up 90% of the screen width */
+    max-width: 250px;         /* But never gets wider than 350px */
+    height: auto;             /* Let the height be determined by the width */
+    aspect-ratio: 4 / 5;      /* Keeps the same proportions as the original 400x500 */
+    margin: 0 auto;           /* Centers the card */
+  }
+}

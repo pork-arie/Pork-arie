@@ -1,28 +1,43 @@
 .back {
-    border: none;
+    border: 1px white solid;
     width: 100px;
-    height: 50px;
+    height: 1px;
     margin: 10px 20px;
 
     display: flex;
     align-items: center;     
     justify-content: center;
-    border-radius: 30px;
-    font-size: 20px;  
-    background-color: var(--bg);
-    color: white;
+    border-radius: 28px;
+    font-size: 15px;  
+    background-color: transparent;
+    color:white;
+    transition: background-color 0.3s ease; 
+    cursor: pointer;
+    z-index: 1;
+    transform: translateY(10px);
+}
+
+
+
+.back:hover{
+    
+    color: var(--bg);
+    background-color: white;
+    border: 1px var(--bg) solid;
+    transform: translateY(10px);
 }
 .D{
-    height: 100vh;
+    height: 95vh;
     width: 100%;
-    background-image: radial-gradient(circle,var(--bg)1px,transparent 1px);
+    background-color: var(--bg);
+    
     background-size: 50px 50px;
 }
 
 #dimg{
     width: 1000px;
     height: 400px;
-    box-shadow: 0 4px 8px rgba(255,255,255,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .slides{
@@ -38,6 +53,12 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     position: relative;
+    transform: translateY(10px);
+    background-color: white;
+    padding: 20px 20px 30px;
+    
+    
+
     
 
 }
@@ -47,13 +68,18 @@
     object-fit: cover;
     border-radius: 10px;
     scroll-snap-align: center;
-    box-shadow: 0 4px 8px rgba(255,255,255,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     transition: 0.3s ease;
+   
 
 }
-.pics:hover{
+
+
+
+
+#dimg:hover{
     transform: scale(1.01);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(27, 27, 27, 0.2);
 }
 
 
@@ -63,15 +89,27 @@
 
 .dscroll{
     z-index: 10;
-    height: 100px;
+    height: 50px;
     width: 100px;
     top: 50%;
     position: absolute;
-    transform: translateY(-80%);
+    transform: translateY(-50%);
     border: none;
     border-radius: 50px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     
 
     
+}
+.dscroll:hover{
+    transform: translateY(-50%) scale(1.1);
 }
 
 .dscroll.left{
@@ -80,3 +118,36 @@
 .dscroll.rigth{
     right: 10px;
 }
+
+.dbt{
+     width: 50px;
+    height: 50px;
+     
+}
+
+.dd{
+    color: white;
+}
+.dd h1 {
+    margin-top: 20px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    
+}
+
+.dd h1,p {
+    padding-left: 20px;
+}
+.dd p{
+    line-height: 50px;
+}
+
+.dd span{
+    background-color: white;
+    margin-left: 20px;
+    color: var(--bg);
+    padding: 10px;
+    line-height: 80px;
+    border-radius: 20px;
+}
+
+

@@ -1,0 +1,262 @@
+/* =========================================
+   MOBILE RESPONSIVE LAYOUT (Max-width: 768px)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  /* --- NAVIGATION --- */
+  .navwrap {
+    padding: 0 10px;
+    top: 10px;
+  }
+  nav {
+    width: 100%;
+    padding: 10px 20px;
+    justify-content: center;
+  }
+  nav ul {
+    gap: 1rem; /* Shrinks the gap between links */
+  }
+  nav a {
+    font-size: 0.9rem; /* Smaller text */
+    padding: 8px 8px;
+  }
+
+  /* --- FRONT PAGE --- */
+  .name {
+    font-size: 80px; /* Shrinks the huge text */
+  }
+
+  /* --- ABOUT / MAIN SECTION --- */
+  .aboutc {
+    display: flex;
+    flex-direction: column; /* Stack the text and image */
+  }
+  .ab1 {
+    margin: 0;
+    padding: 20px;
+    text-align: center; /* Center the text on mobile */
+  }
+  .ab1 h2 {
+    font-size: 28px;
+  }
+  .ab1 p {
+    font-size: 18px;
+  }
+  .ab2 {
+    margin: 20px 0 0 0;
+    text-align: center;
+  }
+  .ab2 img {
+    width: 30%; /* Make image fit screen */
+    max-width: 100px;
+    border-radius: 20px;
+  }
+
+  /* --- PROJECTS SECTION --- */
+  .proj {
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+  .p1 {
+    font-size: 30px;
+    padding-top: 50px;
+    padding-bottom: 30px;
+  }
+  .bcon {
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  #bt {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  /* Cards - Force one per row (Centered State) */
+  .projlist, .certlist {
+    gap: 15px;
+  }
+  .projCard {
+    flex: 0 0 50%; /* Takes full width */
+    max-width: 50%;
+    margin-bottom: 10px;
+  }
+  .projCard img {
+    height: auto; /* Let image height adjust naturally */
+    max-height: 250px;
+  }
+
+  
+
+  /* --- FEATURED SECTION (fcard) --- */
+  #feat {
+    height: auto;
+    padding: 20px;
+  }
+  .fcard {
+    margin: 20px 0;
+    padding: 10px;
+  }
+  .fcard-con {
+    display: flex;
+    flex-direction: column; /* Stack image and text */
+    gap: 20px;
+  }
+  .fcard-con:nth-child(even) {
+    flex-direction: column; /* Keep them stacked even if reversed */
+  }
+  #fimg {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+  .fimg {
+    padding: 10px;
+  }
+  .fname h1 {
+    font-size: 2rem;
+    text-align: center;
+  }
+  .fname p {
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  /* --- MARQUEE (SKILLS) --- */
+  .content {
+    font-size: 25px; /* Shrinks the big text */
+    gap: 20px;
+    padding-right: 20px;
+  }
+  .skills {
+    height: 40px;
+  }
+
+  /* --- PROCESS SECTION --- */
+  .process-section {
+    padding: 40px 10px;
+  }
+  .process-title {
+    font-size: 2rem;
+  }
+  .process-step {
+    padding-left: 50px; /* Shrinks the space for the line */
+  }
+  .step-content {
+    padding: 15px;
+  }
+  .step-content h3 {
+    font-size: 1.2rem;
+  }
+
+  /* --- CONTACT SECTION --- */
+  #contact {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 10px;
+  }
+  .form-container {
+    min-height: auto;
+    padding: 0;
+  }
+  form {
+    padding: 20px;
+    max-width: 50%;
+  }
+  .ing input,
+  .ing textarea {
+    padding: 12px;
+  }
+
+  /* --- OFFER PILLS --- */
+  .what {
+    margin: 30px 0;
+  }
+  .what h3 {
+    font-size: 1.8rem;
+  }
+  .offer-tags span {
+    font-size: 0.85rem;
+    padding: 10px 15px;
+  }
+
+  /* --- GLOBAL FIX FOR BIG TEXT --- */
+  .big-bg-text {
+    font-size: 10rem; /* Prevents it from overflowing the screen */
+  }
+}
+
+
+/* =========================================
+   MOBILE FIX: MAIN IMAGE & PROJECT/CERT CARDS
+   ========================================= */
+
+@media (max-width: 768px) {
+
+  /* --- MAIN / ABOUT SECTION --- */
+  .aboutc {
+    display: flex;
+    flex-direction: column; /* Stack text and image */
+    align-items: center;    /* Center everything horizontally */
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+  }
+
+  .ab1 {
+    margin: 20px 0 0 0;      /* Reset desktop margins */
+    padding: 0;
+    text-align: center;      /* Center the text */
+    width: 100%;
+  }
+
+  .ab1 h2 {
+    font-size: 28px;
+  }
+
+  .ab1 p {
+    font-size: 16px;
+    padding-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* The Image Container */
+  .ab2 {
+    margin: 20px 0 0 0;      /* Reset desktop margins */
+    text-align: center;
+    width: 100%;
+  }
+
+  /* The Image itself */
+  .ab2 img {
+    width: 100%;             /* Takes up the full screen width */
+    max-width: 400px;        /* But never gets wider than 400px */
+    height: auto;            /* Keeps the original aspect ratio */
+    border-radius: 20px;     /* Matches your style */
+    object-fit: cover;
+  }
+
+  /* --- PROJECT & CERT CARDS (Make them identical) --- */
+  .projCard {
+    width: 100%;
+    max-width: 400px;        /* Prevents cards from getting too wide */
+    margin: 0 auto 15px auto; /* Centers the cards */
+  }
+
+  .projCard img {
+    width: 100%;
+    height: auto;            /* Removes the fixed 200px height */
+    max-height: 250px;       /* Cap it so it doesn't get too tall */
+    object-fit: cover;       /* Crops neatly if it needs to */
+    border-radius: 10px;
+  }
+
+  /* If you want the text inside the cards to look good */
+  .projCard h2 {
+    font-size: 1.1rem;
+  }
+  .projCard p {
+    font-size: 0.9rem;
+  }
+}

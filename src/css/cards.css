@@ -26,6 +26,26 @@
   display: none;         
 }
 
+
+/* WHEN 5 OR FEWER ITEMS (NORMAL, CENTERED STATE) */
+.projlist.few, .certlist.few {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;      
+  margin: 0 auto;
+  padding-bottom: 20px;
+  overflow: hidden;        
+}
+
+.projlist.few .projCard, .certlist.few .projCard {
+  flex: 1 1 300px;        
+  max-width: 400px;        
+}
+
+
+
 /* The Arrow Buttons */
 .nav-arrow {
   position: absolute;
@@ -62,7 +82,7 @@
 
 /* The Card (Removed the duplicate 15vw block) */
 .projCard {
-  flex: 0 0 350px;        /* 👈 Fixed width so they don't shrink */
+  flex: 0 0 350px;        
   scroll-snap-align: center;
 
   display: flex;

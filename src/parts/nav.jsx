@@ -13,7 +13,7 @@ function Nav(){
             <li><a href="#front">HOME</a></li>
             <li><a href="#main">ABOUT</a></li>
             <li><a href="#proj">PROJECTS</a></li>
-            <li><a href="#">CONTACT</a></li>
+            <li><a href="#contact">CONTACT</a></li>
           </ul>
         </nav>
 
