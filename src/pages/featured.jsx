@@ -14,7 +14,7 @@ function Featured(){
                  {project.map((pro,index) => (
                     <motion.div className='fcard-con' key={pro.id} initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }} whileInView={{opacity:1,x:0}} transition={{duration:0.3,ease:'ease'}}>
                     <div className='fimg'>
-                        <img src={pro.img} alt="img" id='fimg' />
+                        <img src={pro.img} alt="img" id='fimg' loading="lazy" />
                     </div>
                     <div className='fname'>
                         <h1>{pro.name}</h1>

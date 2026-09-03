@@ -55,24 +55,25 @@ function Detail() {
                 alt=""
                 id="dimg"
                 onClick={() => setView(pro.img1)}
+                loading="lazy"
               />
               <img
                 src={pro.img}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img)}
+                onClick={() => setView(pro.img)} loading="lazy"
               />
               <img
                 src={pro.img2}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img2)}
+                onClick={() => setView(pro.img2)} loading="lazy"
               />
               <img
                 src={pro.img3}
                 alt=""
                 id="dimg"
-                onClick={() => setView(pro.img3)}
+                onClick={() => setView(pro.img3)} loading="lazy"
               />
             </div>
             <button className="dscroll rigth" onClick={rigth}>
