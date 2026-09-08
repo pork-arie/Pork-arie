@@ -27,7 +27,7 @@
     transform: translateY(10px);
 }
 .D{
-    height: 100vh;
+    height: 120vh;
     width: 100%;
     background-color: var(--bg);
     
@@ -148,6 +148,25 @@
     padding: 10px;
     line-height: 80px;
     border-radius: 20px;
+}
+
+.stack-tags span:nth-child(odd) {
+  border: 1px solid rgba(17, 48, 54, 0.6); /* Cyan Border */
+  box-shadow: 0 0 10px rgba(0, 216, 255, 0.1);
+}
+
+.stack-tags span:nth-child(even) {
+  border: 1px solid rgba(50, 79, 129, 0.6); /* Purple Border */
+  box-shadow: 0 0 10px rgba(157, 0, 255, 0.1);
+}
+
+/* Hover effect: Pop and Glow */
+.tech-pill:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: var(--bg);
+  color: white;
+  border: 1px rgb(74, 79, 80) solid !important;
+  
 }
 
 
