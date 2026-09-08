@@ -8,7 +8,7 @@ function Featured(){
         <>
         <section  id="feat" className='dotted-bg'>
             
-              <motion.h1 className='fh' initial={{opacity:0, y:20}} whileInView={{opacity:1,y:0}} transition={{duration:0.3, ease:'ease'}} viewport={{amount:0.2}}>Recent Projects</motion.h1>
+              <motion.h1 className='fh' style={{color:"#0A122A"}} initial={{opacity:0, y:20}} whileInView={{opacity:1,y:0}} transition={{duration:0.3, ease:'ease'}} viewport={{amount:0.2}}>Recent Projects</motion.h1>
                 <div className="fcard">
 
                  {project.map((pro,index) => (
