@@ -1,7 +1,7 @@
 
 
 
-/* Contact Section */
+
 #contact {
     min-height: 80vh;
     display: grid;
@@ -15,7 +15,7 @@
 }
 
 #contact h1 {
-    font-family: 'ougther', sans-serif; /* Matches your nav */
+    font-family: 'ougther', sans-serif; 
     font-size: clamp(1rem, 3vw, 4rem);
     
     text-transform: uppercase;
@@ -23,29 +23,28 @@
     
 }
 
-/* The outer wrapper - Centers everything vertically and horizontally */
 .form-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh; /* Adjust to fit your page */
+  min-height: 80vh; 
   width: 100%;
   padding: 20px;
 }
 
-/* The form itself - Stacks inputs vertically */
+
 form {
-  background: var(--bg); /* Glass effect matching your site */
+  background: var(--bg); 
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   
-  /* 👈 IMPORTANT: Flexbox for stacking! */
+
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Space between inputs */
+  gap: 20px;
 
   width: 100%;
   max-width: 600px;
@@ -53,7 +52,7 @@ form {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Inputs and Textarea */
+
 form input,
 form textarea {
   width: 100%;
@@ -69,14 +68,14 @@ form textarea {
 }
 
 form textarea {
-  resize: vertical; /* Allows the user to resize the height */
+  resize: vertical;
   min-height: 120px;
 }
 
-/* Focus glow on inputs */
+
 form input:focus,
 form textarea:focus {
-  border-color: var(--bg); /* Neon cyan */
+  border-color: var(--bg); 
   box-shadow: 0 0 10px rgba(21, 21, 21, 0.5);
 }
 
@@ -90,9 +89,9 @@ form label {
   letter-spacing: 1px;
 }
 
-/* The Button - Fixed size and width! */
+
 form button {
-  width: 100%; /* Stretches to fill the form */
+  width: 100%; 
   padding: 15px;
   border-radius: 10px;
   border: none;
@@ -105,7 +104,7 @@ form button {
   margin-top: 10px;
 }
 
-/* Button hover effect */
+
 form button:hover {
   background: #9d9898;
   box-shadow: 0 0 20px rgba(11, 11, 11, 0.6);
@@ -117,7 +116,6 @@ form button:disabled {
   cursor: not-allowed;
 }
 
-/* Mobile Responsive */
 @media (max-width: 600px) {
   form {
     padding: 20px;
@@ -136,7 +134,7 @@ form button:disabled {
     color: white;
 }
 
-/* Container for the section */
+
 .what {
   display: flex;
   flex-direction: column;
@@ -149,10 +147,10 @@ form button:disabled {
 .what h3 {
   font-size: 2rem;
   margin-bottom: 30px;
-  text-shadow: 0 0 15px rgba(2, 2, 2, 0.5); /* Matches your cyan glow */
+  text-shadow: 0 0 15px rgba(2, 2, 2, 0.5); 
 }
 
-/* Container for the pills */
+
 .offer-tags {
   display: flex;
   flex-wrap: wrap;
@@ -161,37 +159,36 @@ form button:disabled {
   max-width: 800px;
 }
 
-/* The Pill Base */
+
 .offer-tags span {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  border-radius: 999px; /* The pill shape */
+  border-radius: 999px; 
   font-size: 0.95rem;
   font-weight: 500;
   letter-spacing: 0.5px;
   cursor: default;
   transition: all 0.3s ease;
   
-  /* Glassmorphism background */
+  
   background: white;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Make them "Different" - Alternating Colors */
+
 .offer-tags span:nth-child(odd) {
-  border: 1px solid rgba(17, 48, 54, 0.6); /* Cyan Border */
+  border: 1px solid rgba(17, 48, 54, 0.6); 
   box-shadow: 0 0 10px rgba(0, 216, 255, 0.1);
 }
 
 .offer-tags span:nth-child(even) {
-  border: 1px solid rgba(50, 79, 129, 0.6); /* Purple Border */
+  border: 1px solid rgba(50, 79, 129, 0.6); 
   box-shadow: 0 0 10px rgba(157, 0, 255, 0.1);
 }
 
-/* Hover effect: Pop and Glow */
 .offer-tags span:hover {
   transform: translateY(-3px) scale(1.05);
   background: white;
@@ -230,14 +227,14 @@ form button:disabled {
   
 }
 
-/* The container that holds the vertical line and steps */
+
 .process-container {
   position: relative;
   width: 100%;
   max-width: 800px;
 }
 
-/* The static gray background line */
+
 .process-line {
   position: absolute;
   left: 24px;
@@ -247,7 +244,7 @@ form button:disabled {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* The animated cyan line that scales down as you scroll */
+
 .process-line-animated {
   position: absolute;
   left: 24px;
@@ -256,27 +253,26 @@ form button:disabled {
   width: 2px;
   background: #00d8ff;
   box-shadow: 0 0 15px rgba(0, 216, 255, 0.7);
-  transform-origin: top; /* Draws from top to bottom */
+  transform-origin: top;
 }
 
-/* The list of steps */
 .process-steps {
   display: flex;
   flex-direction: column;
   gap: 50px;
 }
 
-/* Each individual step */
+
 .process-step {
   position: relative;
-  padding-left: 80px; /* Leaves space for the line and dot */
+  padding-left: 80px; 
   min-height: 80px;
 }
 
-/* The glowing dot on the line */
+
 .process-dot {
   position: absolute;
-  left: 4px; /* Centers it on the 2px line */
+  left: 4px; 
   top: 0;
   width: 40px;
   height: 40px;
@@ -291,7 +287,7 @@ form button:disabled {
   color: var(--bg);
   transition: border-color 0.3s;
   cursor: pointer;
-  z-index: 2; /* Sits on top of the line */
+  z-index: 2; 
 }
 
 .process-dot:hover {
@@ -299,7 +295,7 @@ form button:disabled {
   color: #191111;
 }
 
-/* The text content next to the dot */
+
 .step-content {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -310,7 +306,7 @@ form button:disabled {
 }
 
 .step-content:hover {
-  transform: translateX(10px); /* Slides to the right on hover */
+  transform: translateX(10px); 
   border-color: var(--bg);
 }
 
@@ -339,28 +335,25 @@ form button:disabled {
 
 
 
-/* 1. Make the section the container for the dots */
+
 #contact {
   position: relative; 
   overflow: hidden; 
   
-  /* IMPORTANT: Your #contact section doesn't have a background yet.
-     If it's transparent, the body's white background will hide your white dots!
-     So we add your dark blue background here. */
+
   background-color: var(--bg); 
   z-index: 1; 
 }
 
-/* 2. Create the dots */
 #contact::after {
   content: '';
   position: absolute;
   bottom: 0; 
   left: 0;
   width: 100%;
-  height: 300px; /* Adjust this to change how high the dots go */
+  height: 300px; 
   
-  /* The Dot Pattern */
+  
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
   background-size: 20px 20px;
   

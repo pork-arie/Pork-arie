@@ -39,13 +39,14 @@ function App() {
                 <Projects />
                 <Process/>
                 <Contact />
+                <Footer />
               </>
             }
           />
           <Route path='/detail/:id' element={<Detail/>}/>
         </Routes>
       </BrowserRouter>
-      <Footer />
+      
     </>
   );
  

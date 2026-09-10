@@ -1,0 +1,70 @@
+.fc{
+    display: grid;
+    justify-content: center;
+    text-align: center;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 30px;
+    margin-bottom: 70px;
+}
+
+.ffb {
+    width: 48px;
+    height: 50px;
+}
+.fig{
+    width: 50px;
+    height: 50px;
+}
+.flink{
+    width: 40px;
+    height: 50px;
+}
+
+.frot ul li a{
+    color: #0A122A;
+    text-decoration: none;
+    line-height: 25px;
+}
+.frot ul{
+    margin-top: 20px;
+}
+
+
+
+
+.fpol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; 
+}
+.fpol .ficon{
+    gap: 20px;
+    display: flex;
+}
+
+.f-bg{
+    position: relative;
+}
+.f-bg::after{
+    content: '';
+    position: absolute;
+    width: 100%;
+    mask-image: linear-gradient(to top , white 0%, transparent 50%);
+    -webkit-mask-image:linear-gradient(to top , white 0%, transparent 50%);
+    background-image: radial-gradient(circle , black 1px, transparent 1px);
+    background-size: 20px 20px;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    
+
+}
+
+.f-bg > *{
+    z-index: 1;
+}
+
+
+
+
