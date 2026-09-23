@@ -3,6 +3,7 @@
 ![Status](https://img.shields.io/badge/Status-Open%20for%20Freelance-brightgreen)
 ![Location](https://img.shields.io/badge/Location-Philippines-blue)
 ![Focus](https://img.shields.io/badge/Focus-Web%20Development%20%26%20Design-purple)
+![](https://komarev.com/ghpvc/?username=pork-arie)
 
 Information Technology student and freelance web developer based in the Philippines. I build web systems for real use — the kind that have to survive actual users, messy data, and edge cases nobody planned for.
 
