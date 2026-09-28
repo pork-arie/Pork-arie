@@ -135,14 +135,14 @@ export const certificates = [
   { quote: "Ariel built our booking site in three weeks...", name: "Juan Dela Cruz", business: "Dela Cruz Dental Clinic" },
 */
 export const testimonials = [
-     {
-    quote: "Sample testimonial. This is where a client describes what the booking site changed for their office, in two or three sentences.",
-    name: "Sample Client",
-    business: "Sample Church Office",
+      {
+    quote: "Our new booking site has made scheduling so much easier for our church office. What used to take several phone calls and emails can now be requested and confirmed online in just a few minutes. It’s saved our staff time and helped everything run more smoothly.",
+    name: "Michael R.",
+    business: "Email appoint",
   },
   {
-    quote: "Sample testimonial. A second client explains how the check-in system made their front desk faster and easier to manage.",
-    name: "Sample Client",
-    business: "Sample Fitness Gym",
-  },
+    quote: "The check-in system has completely upgraded our front desk. Members can check in on their own in seconds, which keeps lines moving and gives our team more time to help people. It’s faster, simpler, and far easier to manage every day.",
+    name: "Sarah T.",
+    business: "Fitness Gym",
+  }
 ]
