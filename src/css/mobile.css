@@ -1,262 +1,174 @@
 /* =========================================
-   MOBILE RESPONSIVE LAYOUT (Max-width: 768px)
+   TABLET (≤ 1024px)
    ========================================= */
+@media (max-width: 1024px) {
+  .aboutc { align-items: center; padding: 120px 24px 40px; min-height: 100vh; }
+  .ab1 { margin: 0 0 0 4%; }
+  .ab1 p { font-size: 20px; }
+  .ab2 { margin: 0; }
+  .pixelated-image-card { width: min(400px, 90%); height: auto; aspect-ratio: 4 / 5; margin: 0 auto; }
+  .pixelated-image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+  }
 
+  .fcard { margin: 20px; }
+  .fimg { flex: 1 1 55%; min-width: 0; }
+  .fname { flex: 1 1 45%; min-width: 0; }
+  #fimg { width: 100%; height: auto; aspect-ratio: 2 / 1; }
+  .fname p { line-height: 1.7; }
+
+  .projCard { flex-basis: 320px; }
+}
+
+/* =========================================
+   PHONE (≤ 768px)
+   ========================================= */
 @media (max-width: 768px) {
 
   /* --- NAVIGATION --- */
-  .navwrap {
-    padding: 0 10px;
-    top: 10px;
-  }
+  .navwrap { padding: 0 10px; top: 10px; }
   nav {
     width: 100%;
-    padding: 10px 20px;
+    padding: 8px 12px;
     justify-content: center;
   }
   nav ul {
-    gap: 1rem; /* Shrinks the gap between links */
+    gap: 0.25rem;
+    width: 100%;
+    justify-content: space-between;
   }
-  nav a {
-    font-size: 0.9rem; /* Smaller text */
-    padding: 8px 8px;
-  }
+  nav a { font-size: 0.85rem; padding: 8px; }
 
-  /* --- FRONT PAGE --- */
-  .name {
-    font-size: 80px; /* Shrinks the huge text */
-  }
-
-  /* --- ABOUT / MAIN SECTION --- */
+  /* --- ABOUT --- */
+  .main { height: auto; min-height: 100vh; padding-bottom: 40px; }
   .aboutc {
     display: flex;
-    flex-direction: column; /* Stack the text and image */
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 90px 20px 20px;   /* clears the sticky nav */
   }
   .ab1 {
     margin: 0;
-    padding: 20px;
-    text-align: center; /* Center the text on mobile */
-  }
-  .ab1 h2 {
-    font-size: 28px;
-  }
-  .ab1 p {
-    font-size: 18px;
-  }
-  .ab2 {
-    margin: 20px 0 0 0;
+    padding: 0;
+    width: 100%;
     text-align: center;
   }
-  .ab2 img {
-    width: 30%; /* Make image fit screen */
-    max-width: 100px;
-    border-radius: 20px;
-  }
+  .iconC { justify-content: center; margin-bottom: 20px; }
+  .icons { height: 32px; }
+  .ab1 h2 { font-size: 28px; }
+  .ab1 p  { font-size: 16px; padding: 10px 0 0; line-height: 1.6; }
+  .ab2 { margin: 28px 0 0; width: 100%; text-align: center; }
+  .pixelated-image-card { width: 70vw; max-width: 280px; border-radius: 32px; }
 
-  /* --- PROJECTS SECTION --- */
+  /* --- PROJECTS / CERTIFICATES --- */
   .proj {
-    padding-top: 50px;
-    padding-bottom: 50px;
+    height: auto;
+    min-height: auto;
+    padding: 90px 0 60px;
   }
-  .p1 {
-    font-size: 30px;
-    padding-top: 50px;
-    padding-bottom: 30px;
-  }
-  .bcon {
-    flex-direction: row;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  #bt {
-    font-size: 1rem;
-    padding: 10px;
-  }
+  .bcon { gap: 10px; margin: 0 0 12px; }
+  #bt { width: auto; font-size: 1rem; padding: 12px; }
+  #bt::after { top: auto; bottom: 4px; margin-top: 0; left: 0; }
 
-  /* Cards - Force one per row (Centered State) */
-  .projlist, .certlist {
-    gap: 15px;
+  /* slider goes edge to edge so the next card peeks in = "swipe me" */
+  .slider { width: 100%; }
+  .slider-track {
+    gap: 14px;
+    padding: 0 20px 16px;
+    scroll-padding-inline: 20px;
+    cursor: auto;
   }
   .projCard {
-    flex: 0 0 50%; /* Takes full width */
-    max-width: 50%;
-    margin-bottom: 10px;
+    flex: 0 0 min(82%, 340px);
+    max-width: none;
+    margin: 0;
   }
-  .projCard img {
-    height: auto; /* Let image height adjust naturally */
-    max-height: 250px;
-  }
+  .projCard:hover { transform: none; }   /* no stuck hover on touch */
+  .projCard img { height: 180px; }
+  .projCard h2 { font-size: 1.1rem; }
+  .check { width: 100%; align-self: stretch; }
 
-  
-
-  /* --- FEATURED SECTION (fcard) --- */
-  #feat {
-    height: auto;
-    padding: 20px;
-  }
-  .fcard {
-    margin: 20px 0;
-    padding: 10px;
-  }
-  .fcard-con {
+  /* arrows move under the cards, next to the progress bar */
+  .slider-controls {
     display: flex;
-    flex-direction: column; /* Stack image and text */
-    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+    padding: 0 20px;
   }
-  .fcard-con:nth-child(even) {
-    flex-direction: column; /* Keep them stacked even if reversed */
-  }
-  #fimg {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-  }
-  .fimg {
-    padding: 10px;
-  }
-  .fname h1 {
-    font-size: 2rem;
-    text-align: center;
-  }
-  .fname p {
-    line-height: 1.6;
-    text-align: center;
-  }
-
-  /* --- MARQUEE (SKILLS) --- */
-  .content {
-    font-size: 25px; /* Shrinks the big text */
-    gap: 20px;
-    padding-right: 20px;
-  }
-  .skills {
+  .nav-arrow {
+    position: static;
+    transform: none;
+    width: 40px;
     height: 40px;
+    flex: 0 0 40px;
+  }
+  .nav-arrow:hover:not(:disabled) { transform: none; }
+  .slider-progress {
+    display: block;
+    flex: 1;
+    max-width: 200px;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
   }
 
-  /* --- PROCESS SECTION --- */
-  .process-section {
-    padding: 40px 10px;
-  }
-  .process-title {
-    font-size: 2rem;
-  }
-  .process-step {
-    padding-left: 50px; /* Shrinks the space for the line */
-  }
-  .step-content {
-    padding: 15px;
-  }
-  .step-content h3 {
-    font-size: 1.2rem;
-  }
+  .big-bg-text { font-size: 10rem; }
 
-  /* --- CONTACT SECTION --- */
+  /* --- FEATURED --- */
+  #feat { height: auto; padding: 20px 16px; }
+  .fcard { margin: 10px 0; padding: 0; gap: 40px; }
+  .fcard-con,
+  .fcard-con:nth-child(even) {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .fimg { padding: 10px; width: 100%; }
+  .fname h1 { font-size: 1.8rem; text-align: center; }
+  .fname p { line-height: 1.6; text-align: center; }
+
+  /* --- MARQUEE --- */
+  .content { font-size: 25px; gap: 20px; padding-right: 20px; }
+  .skills { height: 40px; }
+
+  /* --- PROCESS --- */
+  .process-section { min-height: auto; padding: 60px 16px; }
+  .process-title { font-size: 2rem; margin-bottom: 40px; }
+  .process-step { padding-left: 50px; }
+  .step-content { padding: 15px; }
+  .step-content h3 { font-size: 1.2rem; }
+
+  /* --- CONTACT --- */
   #contact {
     display: flex;
     flex-direction: column;
-    padding: 40px 10px;
+    padding: 40px 16px;
   }
-  .form-container {
-    min-height: auto;
-    padding: 0;
-  }
-  form {
-    padding: 20px;
-    max-width: 50%;
-  }
-  .ing input,
-  .ing textarea {
-    padding: 12px;
-  }
+  #contact h1 { font-size: 2.2rem; margin-bottom: 16px; }
+  .form-container { min-height: auto; padding: 0; }
+  form { max-width: 100%; padding: 20px; }
+  .ing input, .ing textarea { padding: 12px; font-size: 16px; } /* 16px stops iOS zoom-on-focus */
 
-  /* --- OFFER PILLS --- */
-  .what {
-    margin: 30px 0;
-  }
-  .what h3 {
-    font-size: 1.8rem;
-  }
-  .offer-tags span {
-    font-size: 0.85rem;
-    padding: 10px 15px;
-  }
+  .what { margin: 20px 0 40px; }
+  .what h3 { font-size: 1.8rem; }
+  .offer-tags { gap: 10px; }
+  .offer-tags span { font-size: 0.85rem; padding: 10px 15px; }
 
-  /* --- GLOBAL FIX FOR BIG TEXT --- */
-  .big-bg-text {
-    font-size: 10rem; /* Prevents it from overflowing the screen */
-  }
+  /* --- FOOTER --- */
+  .fc { gap: 30px; padding: 0 16px; }
 }
 
-
 /* =========================================
-   MOBILE FIX: MAIN IMAGE & PROJECT/CERT CARDS
+   SMALL PHONES (≤ 380px)
    ========================================= */
-
-@media (max-width: 768px) {
-
-  /* --- MAIN / ABOUT SECTION --- */
-  .aboutc {
-    display: flex;
-    flex-direction: column; /* Stack text and image */
-    align-items: center;    /* Center everything horizontally */
-    justify-content: center;
-    width: 100%;
-    padding: 20px;
-  }
-
-  .ab1 {
-    margin: 20px 0 0 0;      /* Reset desktop margins */
-    padding: 0;
-    text-align: center;      /* Center the text */
-    width: 100%;
-  }
-
-  .ab1 h2 {
-    font-size: 28px;
-  }
-
-  .ab1 p {
-    font-size: 16px;
-    padding-top: 10px;
-    line-height: 1.5;
-  }
-
-  /* The Image Container */
-  .ab2 {
-    margin: 20px 0 0 0;      /* Reset desktop margins */
-    text-align: center;
-    width: 100%;
-  }
-
-  /* The Image itself */
-  .ab2 img {
-    width: 100%;             /* Takes up the full screen width */
-    max-width: 400px;        /* But never gets wider than 400px */
-    height: auto;            /* Keeps the original aspect ratio */
-    border-radius: 20px;     /* Matches your style */
-    object-fit: cover;
-  }
-
-  /* --- PROJECT & CERT CARDS (Make them identical) --- */
-  .projCard {
-    width: 100%;
-    max-width: 400px;        /* Prevents cards from getting too wide */
-    margin: 0 auto 15px auto; /* Centers the cards */
-  }
-
-  .projCard img {
-    width: 100%;
-    height: auto;            /* Removes the fixed 200px height */
-    max-height: 250px;       /* Cap it so it doesn't get too tall */
-    object-fit: cover;       /* Crops neatly if it needs to */
-    border-radius: 10px;
-  }
-
-  /* If you want the text inside the cards to look good */
-  .projCard h2 {
-    font-size: 1.1rem;
-  }
-  .projCard p {
-    font-size: 0.9rem;
-  }
+@media (max-width: 380px) {
+  nav a { font-size: 0.72rem; padding: 6px 4px; }
+  #bt { font-size: 0.9rem; padding: 12px 8px; }
+  .projCard { flex-basis: 86%; }
 }

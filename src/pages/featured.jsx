@@ -1,4 +1,3 @@
-import nwssu from '../assets/certproj/eval.png'
 import {motion} from 'framer-motion'
 import {project} from '../data/data'
 

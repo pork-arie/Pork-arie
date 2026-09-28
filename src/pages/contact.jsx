@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {motion} from 'framer-motion'
+import { socials } from "../data/data";
 
 function Contact() {
   const [formData, setFormdata] = useState({
@@ -53,6 +54,12 @@ function Contact() {
         </motion.div>
         <div className="form-container">
           <motion.h1 initial={{opacity:0, y:20}} whileInView={{opacity:1,y:0}} transition={{duration:0.3,ease:"ease"}}>contact</motion.h1>
+          {socials.email && (
+            <p className="contact-alt">
+              Prefer email? Write to{" "}
+              <a href={`mailto:${socials.email}`}>{socials.email}</a>
+            </p>
+          )}
           <motion.form onSubmit={handleSubmit} initial={{opacity:0, y:20}} whileInView={{opacity:1,y:0}} transition={{duration:0.3,ease:"ease"}}>
             <div className="ing">
               <label htmlFor="name">Name:</label>
@@ -98,10 +105,12 @@ function Contact() {
             </button>
 
             {stat === "success" && (
-              <p style={{ color: "green" }}>Message sent successfully!</p>
+              <p style={{ color: "#b6f0c4" }}>Message sent! I'll reply within 24 hours.</p>
             )}
             {stat === "error" && (
-              <p style={{ color: "red" }}>Failed to send. Please try again.</p>
+              <p style={{ color: "#ffb4b4" }}>
+                Couldn't send your message. Please try again, or email me at {socials.email}.
+              </p>
             )}
           </motion.form>
         </div>

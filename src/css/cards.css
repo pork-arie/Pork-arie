@@ -1,5 +1,5 @@
 /* The Wrapper for Arrows */
-.slider-wrapper {
+.slider-wrapper, .slider {
   position: relative;
   width: 90%;
   max-width: 1600px;
@@ -7,7 +7,8 @@
 }
 
 /* The Scrollable Container */
-.certlist, .projlist {
+.certlist, .projlist, .slider-track {
+  position: relative;
   display: flex;          
   flex-wrap: nowrap;     
   gap: 20px;
@@ -16,13 +17,14 @@
   padding-bottom: 20px;
 
   overflow-x: auto;       
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
 
  
   scrollbar-width: none;  
   -ms-overflow-style: none; 
 }
-.certlist::-webkit-scrollbar, .projlist::-webkit-scrollbar {
+.certlist::-webkit-scrollbar, .projlist::-webkit-scrollbar, .slider-track::-webkit-scrollbar {
   display: none;         
 }
 
@@ -64,9 +66,26 @@
   z-index: 10;
   transition: 0.3s ease;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.nav-arrow svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
-.nav-arrow:hover {
+.nav-arrow:hover:not(:disabled) {
   background: white;
   color: #191111;
   transform: translateY(-50%) scale(1.1);
@@ -105,6 +124,8 @@
 
 /* The Image */
 .projCard img {
+  -webkit-user-drag: none;
+  user-select: none;
   width: 100%;
   height: 200px;
   max-height: 350px; 
@@ -159,7 +180,7 @@
   flex-direction: column;
 }
 
-.p1, .bcon, .projlist {
+.p1, .bcon, .projlist, .slider {
   position: relative;
   z-index: 1;
 }
@@ -252,4 +273,36 @@
   color: var(--bg);
   font-size: 1.5rem;
   cursor: pointer;
+}
+
+/* =========================================
+   SLIDER BEHAVIOUR (no visual change on desktop)
+   ========================================= */
+.slider-track { cursor: grab; }
+.slider-track .projCard { scroll-snap-align: start; }  /* so arrows land exactly on a card */
+.slider-track.is-dragging {
+  scroll-snap-type: none;   /* snap fights mouse dragging, pause it while dragging */
+  cursor: grabbing;
+  user-select: none;
+}
+.slider-track.is-dragging .projCard { pointer-events: none; }
+
+/* .projCon used to shrink to fit its cards, so with only 3 projects the
+   90%-wide slider ended up narrower than the cards and cut the last one off */
+.projCon { width: 100%; }
+
+/* center the cards when they all fit; still scrolls normally when they don't
+   (auto margins, unlike justify-content:center, never hide the first card) */
+.slider-track > :first-child { margin-left: auto; }
+.slider-track > :last-child  { margin-right: auto; }
+
+/* desktop: arrows stay on the sides like before, no progress bar */
+.slider-controls { margin: 0; }
+.slider-progress { display: none; }
+.slider-progress span {
+  display: block;
+  height: 100%;
+  background: white;
+  transform-origin: left;
+  transition: transform 0.15s linear;
 }

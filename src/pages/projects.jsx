@@ -1,207 +1,126 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { certificates, project } from "../data/data.jsx";
-import { useNavigate } from "react-router-dom";
+import Slider from "../components/Slider.jsx";
 
 function Projects() {
   const [show, setShow] = useState("proj");
-  const scrollRef = useRef(null);
-  const sRef = useRef(null);
-  const nav = useNavigate();
-
-  const scrollLeft = () => {
-    scrollRef.current?.scrollBy({ left: -350, behavior: "smooth" });
-  };
-  const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 350, behavior: "smooth" });
-  };
-
-  const sLeft = () => {
-    sRef.current?.scrollBy({ left: -350, behavior: "smooth" });
-  };
-  const sRight = () => {
-    sRef.current?.scrollBy({ left: 350, behavior: "smooth" });
-  };
-
   const [sel, setSel] = useState(null);
+  const nav = useNavigate();
+  const location = useLocation();
 
-  const [showProjArrows, setShowProjArrows] = useState(false);
-  const [showCertArrows, setShowCertArrows] = useState(false);
-
-  // Track whether we're on a small (tablet/mobile) screen
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-
+  // coming back from a project page ("/#proj") -> jump to this section
   useEffect(() => {
-    const checkScreen = () => {
-      setIsSmallScreen(window.innerWidth <= 1024);
-    };
+    if (location.hash === "#proj") {
+      document.getElementById("proj")?.scrollIntoView();
+    }
+  }, [location.hash]);
 
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
-
-  // Arrows show if screen is small OR there are enough items to need scrolling
+  // close the certificate preview with Esc
   useEffect(() => {
-    const checkArrows = () => {
-      setShowProjArrows(isSmallScreen || project.length > 1);
-      setShowCertArrows(isSmallScreen || certificates.length > 1);
-    };
-
-    const timeout = setTimeout(checkArrows, 100);
-    window.addEventListener("resize", checkArrows);
-
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", checkArrows);
-    };
-  }, [show, project.length, certificates.length, isSmallScreen]);
-
-  // Mouse drag-to-scroll for the certificate list (desktop mouse users)
-  const isDown = useRef(false);
-  const startX = useRef(0);
-  const scrollLeftStart = useRef(0);
-
-  const handleMouseDown = (e) => {
-    isDown.current = true;
-    startX.current = e.pageX - scrollRef.current.offsetLeft;
-    scrollLeftStart.current = scrollRef.current.scrollLeft;
-  };
-
-  const handleMouseLeave = () => {
-    isDown.current = false;
-  };
-  const handleMouseUp = () => {
-    isDown.current = false;
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDown.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = x - startX.current;
-    scrollRef.current.scrollLeft = scrollLeftStart.current - walk;
-  };
+    if (!sel) return;
+    const onKey = (e) => e.key === "Escape" && setSel(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sel]);
 
   return (
-    <>
-      <section className="proj" id="proj">
-        <div className="scroll">
-          <span className="big-bg-text">PROJECTS</span>
-        </div>
+    <section className="proj" id="proj">
+      <div className="scroll">
+        <span className="big-bg-text">PROJECTS</span>
+      </div>
 
-        <motion.div
-          className="bcon"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "ease" }}
+      <motion.div
+        className="bcon"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        <button
+          type="button"
+          id="bt"
+          className={show === "proj" ? "active" : ""}
+          aria-pressed={show === "proj"}
+          onClick={() => setShow("proj")}
         >
-          <button
-            id="bt"
-            className={show === "proj" ? "active" : ""}
-            onClick={() => setShow("proj")}
-          >
-            PROJECTS
-          </button>
-          <button
-            id="bt"
-            className={show === "cert" ? "active" : ""}
-            onClick={() => setShow("cert")}
-          >
-            CERTIFICATES
-          </button>
-        </motion.div>
+          PROJECTS
+        </button>
+        <button
+          type="button"
+          id="bt"
+          className={show === "cert" ? "active" : ""}
+          aria-pressed={show === "cert"}
+          onClick={() => setShow("cert")}
+        >
+          CERTIFICATES
+        </button>
+      </motion.div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            className="projCon"
-            key={show}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {show === "proj" ? (
-              <div className="slider-wrapper">
-                {showProjArrows && (
-                  <button className="nav-arrow left" onClick={sLeft}></button>
-                )}
-                <motion.div className="projlist" ref={sRef}>
-                  {project.map((pro) => (
-                    <div className="projCard" key={pro.id}>
-                      <img src={pro.img} loading="lazy" />
-                      <h2>{pro.name}</h2>
-
-                      <button
-                        className="check"
-                        onClick={() => nav(`/detail/${pro.id}`)}
-                      >
-                        Details
-                      </button>
-                    </div>
-                  ))}
-                </motion.div>
-                {showProjArrows && (
-                  <button className="nav-arrow right" onClick={sRight}></button>
-                )}
-              </div>
-            ) : (
-              <div className="slider-wrapper">
-                {showCertArrows && (
+      <AnimatePresence mode="wait">
+        <motion.div
+          className="projCon"
+          key={show}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          {show === "proj" ? (
+            <Slider label="projects">
+              {project.map((pro) => (
+                <div className="projCard" key={pro.id}>
+                  <img src={pro.img} alt={pro.name} loading="lazy" draggable={false} />
+                  <h2>{pro.name}</h2>
                   <button
-                    className="nav-arrow left"
-                    onClick={scrollLeft}
-                  ></button>
-                )}
-
-                <div
-                  className="certlist"
-                  ref={scrollRef}
-                  onMouseDown={handleMouseDown}
-                  onMouseLeave={handleMouseLeave}
-                  onMouseUp={handleMouseUp}
-                  onMouseMove={handleMouseMove}
-                >
-                  {certificates.map((prod) => (
-                    <motion.div className="projCard" key={prod.id}>
-                      <img src={prod.img} loading="lazy" />
-                      <h2>{prod.name}</h2>
-                      <p>{prod.description}</p>
-
-                      <button className="check" onClick={() => setSel(prod)}>
-                        check
-                      </button>
-                    </motion.div>
-                  ))}
+                    type="button"
+                    className="check"
+                    onClick={() => nav(`/detail/${pro.id}`)}
+                  >
+                    Details
+                  </button>
                 </div>
-
-                {showCertArrows && (
+              ))}
+            </Slider>
+          ) : (
+            <Slider label="certificates">
+              {certificates.map((cert) => (
+                <div className="projCard" key={cert.id}>
+                  <img src={cert.img} alt={cert.name} loading="lazy" draggable={false} />
+                  <h2>{cert.name}</h2>
+                  <p>{cert.description}</p>
                   <button
-                    className="nav-arrow right"
-                    onClick={scrollRight}
-                  ></button>
-                )}
-              </div>
-            )}
-          </motion.div>
-
-          {sel && (
-            <div className="lightbox-overlay" onClick={() => setSel(null)}>
-              <div
-                className="lightbox-content"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button className="lightbox-close" onClick={() => setSel(null)}>
-                  x
-                </button>
-                <img src={sel.img} alt={sel.name} />
-              </div>
-            </div>
+                    type="button"
+                    className="check"
+                    onClick={() => setSel(cert)}
+                  >
+                    check
+                  </button>
+                </div>
+              ))}
+            </Slider>
           )}
-        </AnimatePresence>
-      </section>
-    </>
+        </motion.div>
+      </AnimatePresence>
+
+      {sel && (
+        <div className="lightbox-overlay" onClick={() => setSel(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="lightbox-close"
+              onClick={() => setSel(null)}
+              aria-label="Close preview"
+            >
+              ×
+            </button>
+            <img src={sel.img} alt={sel.name} />
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
 

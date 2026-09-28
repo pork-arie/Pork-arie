@@ -17,6 +17,7 @@ import Contact from './pages/contact'
 import Featured from './pages/featured'
 import Detail from './pages/detail'
 import Process from './pages/process'
+import Testimonials from './pages/testimonials'
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
                 <Stack />
                 <Featured />
                 <Projects />
+                <Testimonials />
                 <Process/>
                 <Contact />
                 <Footer />

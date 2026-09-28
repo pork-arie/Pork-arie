@@ -1,0 +1,37 @@
+.tm {
+  padding: clamp(56px, 8vw, 104px) 20px;
+  background: white;
+  color: var(--bg);
+}
+.tm-title {
+  font-family: 'aquarium', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  margin-bottom: 40px;
+}
+.tm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.tm-card {
+  margin: 0;
+  padding: 28px;
+  border-radius: 16px;
+  border: 1px solid #d7dcea;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+.tm-card blockquote {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+.tm-card figcaption { display: flex; flex-direction: column; gap: 2px; }
+.tm-card strong { color: var(--bg); }
+.tm-card span { color: #5B6477; font-size: 0.9rem; }

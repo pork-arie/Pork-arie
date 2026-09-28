@@ -1,27 +1,50 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
 
 import { project } from "../data/data";
-import { div } from "framer-motion/client";
-import { Helmet } from "react-helmet-async";
+import "../css/detail.css";
 
 function Detail() {
   const { id } = useParams();
   const nav = useNavigate();
 
+  const index = project.findIndex((p) => p.id === Number(id));
+  const pro = project[index];
+  const next = project[(index + 1) % project.length];
+
+  // cover image first, then the rest; skips any that are missing
+  const screens = pro
+    ? [pro.img, pro.img1, pro.img2, pro.img3].filter(Boolean)
+    : [];
+
+  const [active, setActive] = useState(0);
   const [view, setView] = useState(null);
 
-  const ref = useRef(null);
+  // new project -> start at the top, first screen
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setActive(0);
+  }, [id]);
 
-  const left = () => {
-    ref.current?.scrollBy({ left: -360, behavior: "smooth" });
-  };
+  // Esc closes the full-size view
+  useEffect(() => {
+    if (!view) return;
+    const onKey = (e) => e.key === "Escape" && setView(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [view]);
 
-  const rigth = () => {
-    ref.current?.scrollBy({ left: 360, behavior: "smooth" });
-  };
-
-  const pro = project.find((p) => p.id === Number(id));
+  if (!pro) {
+    return (
+      <main className="pd pd-missing">
+        <h1 className="pd-title">Project not found</h1>
+        <p>This project doesn't exist or was removed.</p>
+        <Link className="pd-btn" to="/#proj">See all projects</Link>
+      </main>
+    );
+  }
 
   return (
     <>
@@ -31,103 +54,175 @@ function Detail() {
         <meta property="og:title" content={pro.name} />
       </Helmet>
 
-      <section className="D">
-        <button className="back" onClick={() => nav("/")}>
-          back
-        </button>
-        <div className="dd">
-          <div className="slides">
-            <button className="dscroll left" onClick={left}>
-              <svg
-                className="dbt"
-                class="w-6 h-6 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M13.729 5.575c1.304-1.074 3.27-.146 3.27 1.544v9.762c0 1.69-1.966 2.618-3.27 1.544l-5.927-4.881a2 2 0 0 1 0-3.088l5.927-4.88Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
+      <main className="pd">
+        {/* ---------- top bar ---------- */}
+        <header className="pd-bar">
+          <button type="button" className="pd-back" onClick={() => nav("/#proj")}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+            All projects
+          </button>
+          <span className="pd-count">
+            {index + 1} / {project.length}
+          </span>
+        </header>
 
-            <div className="pics" ref={ref}>
-              <img
-                src={pro.img1}
-                alt=""
-                id="dimg"
-                onClick={() => setView(pro.img1)}
-                loading="lazy"
-              />
-              <img
-                src={pro.img}
-                alt=""
-                id="dimg"
-                onClick={() => setView(pro.img)}
-                loading="lazy"
-              />
-              <img
-                src={pro.img2}
-                alt=""
-                id="dimg"
-                onClick={() => setView(pro.img2)}
-                loading="lazy"
-              />
-              <img
-                src={pro.img3}
-                alt=""
-                id="dimg"
-                onClick={() => setView(pro.img3)}
-                loading="lazy"
-              />
+        {/* ---------- hero ---------- */}
+        <section className="pd-hero">
+          <div className="pd-intro">
+            <h1 className="pd-title">{pro.name}</h1>
+            {pro.role && <p className="pd-role">{pro.role}</p>}
+            <p className="pd-desc">{pro.description}</p>
+
+            {(pro.live || pro.github) && (
+              <div className="pd-links">
+                {pro.live && (
+                  <a className="pd-link is-primary" href={pro.live} target="_blank" rel="noreferrer">
+                    Visit live site
+                  </a>
+                )}
+                {pro.github && (
+                  <a className="pd-link" href={pro.github} target="_blank" rel="noreferrer">
+                    View code on GitHub
+                  </a>
+                )}
+              </div>
+            )}
+
+            <h2 className="pd-label">Built with</h2>
+            <ul className="pd-stack">
+              {pro.stack.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
+          </div>
+
+          <motion.div
+            className="pd-showcase"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            {/* laptop mockup */}
+            <div className="laptop">
+              <div className="laptop-lid">
+                <span className="laptop-cam" aria-hidden="true" />
+                <button
+                  type="button"
+                  className="laptop-display"
+                  onClick={() => setView(screens[active])}
+                  aria-label={`View ${pro.name} screen ${active + 1} full size`}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={screens[active]}
+                      src={screens[active]}
+                      alt={`${pro.name} screen ${active + 1}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    />
+                  </AnimatePresence>
+                </button>
+              </div>
+              <div className="laptop-base" aria-hidden="true">
+                <span />
+              </div>
             </div>
-            <button className="dscroll rigth" onClick={rigth}>
-              <svg
-                className="dbt"
-                class="w-6 h-6 text-gray-800 dark:text-white"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10.271 5.575C8.967 4.501 7 5.43 7 7.12v9.762c0 1.69 1.967 2.618 3.271 1.544l5.927-4.881a2 2 0 0 0 0-3.088l-5.927-4.88Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
 
-          <h1>{pro.name}</h1>
-          <p>{pro.description}</p>
-          <div className="stack-tags">
-            {pro.stack.map((tech) => (
-              <span key={tech} className="tech-pill">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
+            {/* screen switcher */}
+            {screens.length > 1 && (
+              <div className="pd-thumbs" role="tablist" aria-label="Screens">
+                {screens.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === active}
+                    className={i === active ? "is-active" : ""}
+                    onClick={() => setActive(i)}
+                  >
+                    <img src={src} alt="" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </section>
 
+        {/* ---------- case study ---------- */}
+        {(pro.problem || pro.built?.length > 0) && (
+          <section className="pd-story">
+            {pro.problem && (
+              <div>
+                <h2 className="pd-story-title">The problem</h2>
+                <p>{pro.problem}</p>
+              </div>
+            )}
+            {pro.built?.length > 0 && (
+              <div>
+                <h2 className="pd-story-title">What I built</h2>
+                <ul className="pd-built">
+                  {pro.built.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ---------- all screens ---------- */}
+        {screens.length > 1 && (
+          <section className="pd-screens dotted-bg">
+            <h2 className="pd-section-title">Screens</h2>
+            <div className="pd-grid">
+              {screens.map((src, i) => (
+                <button
+                  key={src}
+                  type="button"
+                  className="browser"
+                  onClick={() => setView(src)}
+                  aria-label={`View screen ${i + 1} full size`}
+                >
+                  <span className="browser-bar" aria-hidden="true">
+                    <i /><i /><i />
+                  </span>
+                  <img src={src} alt={`${pro.name} screen ${i + 1}`} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ---------- next project ---------- */}
+        {project.length > 1 && (
+          <Link to={`/detail/${next.id}`} className="pd-next">
+            <span className="pd-next-text">
+              <small>Next project</small>
+              <strong>{next.name}</strong>
+            </span>
+            <img src={next.img} alt="" loading="lazy" />
+          </Link>
+        )}
+
+        {/* ---------- full-size view ---------- */}
         {view && (
           <div className="lightbox-overlay" onClick={() => setView(null)}>
-            <div
-              className="lightbox-content"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img src={view} />
+            <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className="lightbox-close"
+                onClick={() => setView(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <img src={view} alt="" />
             </div>
           </div>
         )}
-      </section>
+      </main>
     </>
   );
 }
