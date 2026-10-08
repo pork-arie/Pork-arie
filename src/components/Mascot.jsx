@@ -1,34 +1,76 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import mascotImg from "../assets/mascot.webp";
+import baseImg from "../assets/mascot/base.webp";
+import tailImg from "../assets/mascot/tail.webp";
+import pawImg from "../assets/mascot/paw.webp";
+import eyeLImg from "../assets/mascot/eyeL.webp";
+import eyeRImg from "../assets/mascot/eyeR.webp";
+import pupilLImg from "../assets/mascot/pupilL.webp";
+import pupilRImg from "../assets/mascot/pupilR.webp";
+import mouthImg from "../assets/mascot/mouth.webp";
+import spritesImg from "../assets/mascot/sprites.webp";
 import "./Mascot.css";
 
-// "Cat in a Fish Suit" — an interactive mascot.
-// - Leans toward the cursor, perks up on hover
-// - Click: random reaction (jump, spin, dance, flip, wave...)
-// - Double-click: spin with sparkles; click spam: gets dizzy
-// - Rub the cursor back and forth over it: purrs
-// - Drag it anywhere; throw it and it bounces off the screen edges
-// - Leave it alone and it falls asleep; move the mouse to wake it
-// - Reacts when the page is scrolled fast
-// Position is remembered between visits.
+// "Cat in a Fish Suit" mascot.
+//
+// Normal / happy: the original 3D artwork, split into layers so the eyes
+// follow the cursor and blink, the tail wags and the paw bounces.
+// Everything else plays frame-by-frame sprite animations (walk, run, jump,
+// fall, wave, dance, look around, sleep, get up, celebrate, sad, angry,
+// surprised).
+//
+// Interactions:
+// - Hover: happy. Click: random reaction. Poke 5x fast: angry.
+// - Rub the cursor back and forth over it: happy purr.
+// - Drag it anywhere; throw it and it bounces off the edges, then falls flat.
+// - Cursor leaves the page: sad. Comes back far away: runs to it.
+// - Fast scroll: surprised. Idle: looks around, wanders, then falls asleep.
+// Position is remembered.
 
 const STORAGE_KEY = "mascot-pos";
-const RATIO = 563 / 420; // height / width of mascot.webp
-const SLEEP_AFTER = 15000;
+const VB = { w: 648, h: 868 };
+const RATIO = VB.h / VB.w;
+const SLEEP_AFTER = 20000;
+
+// Layer positions in the original artwork's pixel space.
+const P = {
+  tail: { x: 0, y: 587, w: 181, h: 273 },
+  paw: { x: 421, y: 520, w: 137, h: 133 },
+  eyeL: { x: 202, y: 413, w: 111, h: 114 },
+  eyeR: { x: 422, y: 355, w: 110, h: 114 },
+  pupilL: { x: 75, y: 177, w: 105, h: 107 },
+  pupilR: { x: 442, y: 105, w: 101, h: 103 },
+  mouth: { x: 333, y: 470, w: 82, h: 55 },
+};
+const SCLERA = {
+  L: { cx: 108.8, cy: 228.3, rx: 63, ry: 83, angle: 45 },
+  R: { cx: 505.6, cy: 148.8, rx: 59, ry: 75, angle: 124 },
+};
+
+// Sprite sheet: one animation per row, 6 frames each, 112x166 cells.
+const SHEET = { cols: 6, rows: 14, cellW: 112, cellH: 166 };
+const ANIMS = {
+  walk: { row: 1, fps: 8 },
+  run: { row: 2, fps: 12 },
+  jump: { row: 3, fps: 9, once: true },
+  fall: { row: 4, fps: 8, once: true },
+  wave: { row: 5, fps: 8 },
+  dance: { row: 6, fps: 8 },
+  look: { row: 7, fps: 4, once: true },
+  sleep: { row: 8, fps: 5, once: true },
+  getup: { row: 9, fps: 7, once: true },
+  celebrate: { row: 10, fps: 8 },
+  sad: { row: 11, fps: 5 },
+  angry: { row: 12, fps: 8 },
+  surprised: { row: 13, fps: 8 },
+};
 
 const REACTIONS = [
-  { name: "jump", ms: 1100, fx: "💙", say: ["Hi there! 👋", "Hello! 💙"] },
-  { name: "spin", ms: 900, fx: "✨", say: ["Wheee! 🌀"] },
-  { name: "dance", ms: 1700, fx: "🎵", say: ["♪ Blub blub ♪", "Dance with me!"] },
-  { name: "flip", ms: 1000, fx: "✨", say: ["Ta-da! ✨"] },
-  { name: "shake", ms: 800, fx: "😆", say: ["Hehe, that tickles!"] },
-  { name: "squish", ms: 900, fx: "💙", say: ["Squish!", "Boop! 💙"] },
-  {
-    name: "wave",
-    ms: 1500,
-    fx: "🐟",
-    say: ["Need a website? 🐟", "Hire Anghel! ✨", "Let's build something!"],
-  },
+  { anim: "jump", ms: 1300, fx: "💙", say: ["Hi there! 👋", "Hello! 💙"] },
+  { anim: "wave", ms: 1800, say: ["Need a website? 🐟", "Hire Anghel! ✨"] },
+  { anim: "dance", ms: 2200, fx: "🎵", say: ["♪ Blub blub ♪", "Dance with me!"] },
+  { anim: "celebrate", ms: 1800, fx: "✨", say: ["Yay! ✨", "Let's build something!"] },
+  { anim: "surprised", ms: 1300, say: ["Oh! You found me! 👀"] },
+  { anim: null, act: "squish", ms: 1000, fx: "💙", say: ["Boop! 💙"] },
 ];
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -53,17 +95,58 @@ const save = (pos) => {
 const reducedMotion = () =>
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+const Img = ({ part, href }) => (
+  <image href={href} x={P[part].x} y={P[part].y} width={P[part].w} height={P[part].h} />
+);
+
+// Plays one row of the sprite sheet frame by frame.
+function Sprite({ anim, flip }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const { row, fps, once } = ANIMS[anim];
+    const el = ref.current;
+    let frame = 0;
+    const show = () => {
+      el.style.backgroundPosition = `${(frame / (SHEET.cols - 1)) * 100}% ${(row / (SHEET.rows - 1)) * 100}%`;
+    };
+    show();
+    if (reducedMotion()) return;
+    const id = setInterval(() => {
+      if (once && frame === SHEET.cols - 1) return clearInterval(id);
+      frame = (frame + 1) % SHEET.cols;
+      show();
+    }, 1000 / fps);
+    return () => clearInterval(id);
+  }, [anim]);
+
+  return (
+    <div
+      ref={ref}
+      className={`m-sprite sprite-${anim}${flip ? " is-flipped" : ""}`}
+      style={{
+        backgroundImage: `url(${spritesImg})`,
+        backgroundSize: `${SHEET.cols * 100}% ${SHEET.rows * 100}%`,
+        aspectRatio: `${SHEET.cellW} / ${SHEET.cellH}`,
+      }}
+    />
+  );
+}
+
 export default function Mascot({ size = 140 }) {
   const wrapRef = useRef(null);
   const tiltRef = useRef(null);
+  const eyeRefs = useRef([]);
+  const pupilRefs = useRef([]);
   const posRef = useRef(null);
   const drag = useRef(null);
   const raf = useRef(0);
   const timers = useRef({});
   const lastReaction = useRef(null);
   const clicks = useRef([]);
+  const angryUntil = useRef(0);
   const pet = useRef({ dir: 0, flips: [], cooldown: 0 });
   const sleepingRef = useRef(false);
+  const lastMove = useRef(0);
   const particleId = useRef(0);
 
   const height = size * RATIO;
@@ -86,9 +169,21 @@ export default function Mascot({ size = 140 }) {
   const [dragging, setDragging] = useState(false);
   const [flying, setFlying] = useState(false);
   const [sleeping, setSleeping] = useState(false);
-  const [action, setAction] = useState(null); // { name, key }
+  const [hovering, setHovering] = useState(false);
+  const [moving, setMoving] = useState(null); // { anim: "walk" | "run", dir: -1 | 1 }
+  const [action, setAction] = useState(null); // body animation { name, key }
+  const [override, setOverride] = useState(null); // timed sprite animation / "happy"
   const [message, setMessage] = useState(null);
   const [particles, setParticles] = useState([]);
+
+  // What to show right now: a sprite animation name, or "neutral"/"happy"
+  // for the layered 3D artwork.
+  const state =
+    moving?.anim ??
+    (dragging || flying ? "surprised" : null) ??
+    override ??
+    (sleeping ? "sleep" : hovering ? "happy" : "neutral");
+  const anim = ANIMS[state] ? state : null;
 
   useEffect(() => {
     posRef.current = pos;
@@ -111,7 +206,7 @@ export default function Mascot({ size = 140 }) {
     const ids = new Set(items.map((p) => p.id));
     setTimeout(
       () => setParticles((ps) => ps.filter((p) => !ids.has(p.id))),
-      1600 + count * 90,
+      2400 + count * 90,
     );
   }, []);
 
@@ -121,11 +216,19 @@ export default function Mascot({ size = 140 }) {
     timers.current.say = setTimeout(() => setMessage(null), ms);
   }, []);
 
-  const play = useCallback(
-    (name, ms, { text, fx, count } = {}) => {
-      setAction({ name, key: Date.now() });
-      clearTimeout(timers.current.action);
-      timers.current.action = setTimeout(() => setAction(null), ms);
+  // Play a reaction: sprite animation (or 3D mood) + body motion + bubble + emoji.
+  const react = useCallback(
+    (show, act, ms, { text, fx, count } = {}) => {
+      if (show) {
+        setOverride(show);
+        clearTimeout(timers.current.override);
+        timers.current.override = setTimeout(() => setOverride(null), ms);
+      }
+      if (act) {
+        setAction({ name: act, key: Date.now() });
+        clearTimeout(timers.current.action);
+        timers.current.action = setTimeout(() => setAction(null), ms);
+      }
       if (text) say(text, Math.max(ms, 1800));
       if (fx) burst(fx, count);
     },
@@ -133,11 +236,66 @@ export default function Mascot({ size = 140 }) {
   );
 
   const randomReaction = () => {
-    const options = REACTIONS.filter((r) => r.name !== lastReaction.current);
+    const options = REACTIONS.filter((r) => r !== lastReaction.current);
     const r = pick(options);
-    lastReaction.current = r.name;
-    play(r.name, r.ms, { text: pick(r.say), fx: r.fx });
+    lastReaction.current = r;
+    react(r.anim ?? "happy", r.act, r.ms, { text: pick(r.say), fx: r.fx });
   };
+
+  // Walk or run along the screen to x.
+  const moveTo = useCallback(
+    (targetX, how, text) => {
+      const tx = clamp({ x: targetX, y: 0 }).x;
+      const from = posRef.current;
+      if (reducedMotion() || Math.abs(tx - from.x) < 40) return;
+      cancelAnimationFrame(raf.current);
+      const dir = tx > from.x ? 1 : -1;
+      const speed = how === "run" ? 6 : 2.2;
+      setMoving({ anim: how, dir });
+      setOverride(null);
+      if (text) say(text, 1600);
+      let x = from.x;
+      const step = () => {
+        x += dir * speed;
+        const done = dir > 0 ? x >= tx : x <= tx;
+        if (done) x = tx;
+        setPos(clamp({ x, y: posRef.current.y }));
+        if (done) {
+          raf.current = 0;
+          setMoving(null);
+          save(posRef.current);
+          return;
+        }
+        raf.current = requestAnimationFrame(step);
+      };
+      raf.current = requestAnimationFrame(step);
+    },
+    [clamp, setPos, say],
+  );
+
+  // Point the eyes at a screen position (3D artwork only).
+  const lookAt = useCallback((clientX, clientY) => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const dx = clientX - (r.left + r.width / 2);
+    const dy = clientY - (r.top + r.height * 0.4);
+    const dist = Math.hypot(dx, dy) || 1;
+    const pull = Math.min(dist / 250, 1);
+    const nx = (dx / dist) * pull;
+    const ny = (dy / dist) * pull;
+    eyeRefs.current.forEach((g) => {
+      if (g) g.style.transform = `translate(${nx * 9}px, ${ny * 7}px)`;
+    });
+    pupilRefs.current.forEach((g) => {
+      if (g) g.style.transform = `translate(${nx * 14}px, ${ny * 14}px)`;
+    });
+    if (tiltRef.current) {
+      const tx = Math.max(-1, Math.min(1, dx / 500));
+      const ty = Math.max(-1, Math.min(1, dy / 500));
+      tiltRef.current.style.transform = `perspective(700px) rotateY(${tx * 12}deg) rotateX(${-ty * 8}deg)`;
+    }
+  }, []);
 
   // Keep it on screen when the window resizes.
   useEffect(() => {
@@ -146,35 +304,77 @@ export default function Mascot({ size = 140 }) {
     return () => window.removeEventListener("resize", onResize);
   }, [clamp, setPos]);
 
-  // Lean toward the pointer, fall asleep when idle, wake on activity.
+  // Blink at random intervals; glance around when the cursor is still.
+  useEffect(() => {
+    let blinkT;
+    let lookT;
+    const blink = () => {
+      const el = wrapRef.current;
+      if (el) {
+        el.classList.add("is-blinking");
+        setTimeout(() => el.classList.remove("is-blinking"), 160);
+      }
+      blinkT = setTimeout(blink, 2000 + Math.random() * 3500);
+    };
+    const glance = () => {
+      if (Date.now() - lastMove.current > 2500) {
+        const r = wrapRef.current?.getBoundingClientRect();
+        if (r) {
+          const a = Math.random() * Math.PI * 2;
+          lookAt(r.left + r.width / 2 + Math.cos(a) * 300, r.top + Math.sin(a) * 300);
+        }
+      }
+      lookT = setTimeout(glance, 1800 + Math.random() * 2500);
+    };
+    blinkT = setTimeout(blink, 1500);
+    lookT = setTimeout(glance, 3000);
+    return () => {
+      clearTimeout(blinkT);
+      clearTimeout(lookT);
+    };
+  }, [lookAt]);
+
+  // Follow the pointer, sleep when idle, wake on activity, get sad when the
+  // cursor leaves the page, react to fast scrolling.
   useEffect(() => {
     const wake = () => {
       if (sleepingRef.current) {
         sleepingRef.current = false;
         setSleeping(false);
-        play("surprised", 700, { text: "Huh?! I'm awake! 👀", fx: "❗", count: 1 });
+        react("getup", null, 1100, { text: "Huh?! I'm awake! 👀" });
       }
       clearTimeout(timers.current.sleep);
       timers.current.sleep = setTimeout(() => {
         if (drag.current || raf.current) return;
         sleepingRef.current = true;
         setSleeping(true);
+        setOverride(null);
         clearTimeout(timers.current.say);
         setMessage("Zzz... 💤");
       }, SLEEP_AFTER);
     };
 
-    const look = (e) => {
+    const onMove = (e) => {
+      lastMove.current = Date.now();
       wake();
-      const el = wrapRef.current;
-      const tilt = tiltRef.current;
-      if (!el || !tilt) return;
-      const r = el.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width / 2);
-      const dy = e.clientY - (r.top + r.height / 2);
-      const nx = Math.max(-1, Math.min(1, dx / 400));
-      const ny = Math.max(-1, Math.min(1, dy / 400));
-      tilt.style.transform = `perspective(600px) rotateY(${nx * 18}deg) rotateX(${-ny * 12}deg) rotate(${nx * 4}deg)`;
+      lookAt(e.clientX, e.clientY);
+    };
+
+    let left = false;
+    const onOut = (e) => {
+      if (e.relatedTarget || drag.current || sleepingRef.current) return;
+      left = true;
+      react("sad", null, 4000, { text: "Don't leave! 🥺" });
+    };
+    const onOver = (e) => {
+      if (!left) return;
+      left = false;
+      const r = wrapRef.current?.getBoundingClientRect();
+      if (r && Math.abs(e.clientX - (r.left + r.width / 2)) > 250) {
+        moveTo(e.clientX - r.width / 2, "run", "Wait for me! 💨");
+      } else {
+        react("celebrate", null, 1600, { text: "Yay, you're back! 💙", fx: "💙" });
+      }
     };
 
     let lastY = window.scrollY;
@@ -186,28 +386,63 @@ export default function Mascot({ size = 140 }) {
       const now = Date.now();
       if (Math.abs(dy) > 60 && now > scrollCool && !drag.current) {
         scrollCool = now + 1500;
-        play(dy > 0 ? "hold-down" : "hold-up", 700, { fx: "💦", count: 2 });
+        react("surprised", dy > 0 ? "hold-down" : "hold-up", 900, {
+          fx: "💦",
+          count: 2,
+        });
       }
     };
 
     wake();
-    window.addEventListener("pointermove", look);
+    window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerdown", wake);
     window.addEventListener("keydown", wake);
     window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("mouseout", onOut);
+    document.addEventListener("mouseover", onOver);
     return () => {
-      window.removeEventListener("pointermove", look);
+      window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", wake);
       window.removeEventListener("keydown", wake);
       window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("mouseout", onOut);
+      document.removeEventListener("mouseover", onOver);
     };
-  }, [play]);
+  }, [react, lookAt, moveTo]);
+
+  // While idle: now and then look around, or walk somewhere new
+  // (toward the cursor if it's far away).
+  useEffect(() => {
+    let pointerX = null;
+    const track = (e) => (pointerX = e.clientX);
+    let next = Date.now() + 8000;
+    const id = setInterval(() => {
+      if (Date.now() < next) return;
+      next = Date.now() + 9000 + Math.random() * 9000;
+      if (sleepingRef.current || drag.current || raf.current) return;
+      const r = wrapRef.current?.getBoundingClientRect();
+      if (!r) return;
+      if (Math.random() < 0.5) {
+        react("look", null, 1600);
+        return;
+      }
+      const far = pointerX !== null && Math.abs(pointerX - r.left) > 300;
+      const target = far
+        ? pointerX - r.width / 2
+        : r.left + (Math.random() < 0.5 ? -1 : 1) * (150 + Math.random() * 250);
+      moveTo(target, "walk", pick(["Exploring~ 🐟", "La la la ♪", null]));
+    }, 1000);
+    window.addEventListener("pointermove", track);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("pointermove", track);
+    };
+  }, [react, moveTo]);
 
   // Zzz while sleeping.
   useEffect(() => {
     if (!sleeping) return;
-    burst("💤", 1);
-    const id = setInterval(() => burst("💤", 1), 1600);
+    const id = setInterval(() => burst("💤", 1), 1800);
     return () => clearInterval(id);
   }, [sleeping, burst]);
 
@@ -252,14 +487,19 @@ export default function Mascot({ size = 140 }) {
       const now = Date.now();
       if (impact > 10 && now > bonkCool) {
         bonkCool = now + 300;
-        play("bonk", 350, { fx: "💫", count: 1 });
+        react(null, "bonk", 350, { fx: "💫", count: 1 });
       }
       setPos({ x, y });
       if (y >= maxY && vy === 0 && Math.abs(vx) < 0.4) {
         raf.current = 0;
         setFlying(false);
         save({ x, y });
-        play("land", 600, { text: pick(["Again! Again!", "Whew! 😵", "That was fun!"]) });
+        react("fall", null, 1400, {
+          text: pick(["Oof! 😵", "Again! Again!", "That was fun!"]),
+          fx: "💫",
+          count: 2,
+        });
+        timers.current.getup = setTimeout(() => react("getup", null, 1000), 1400);
         return;
       }
       raf.current = requestAnimationFrame(step);
@@ -269,13 +509,11 @@ export default function Mascot({ size = 140 }) {
 
   const onClick = () => {
     const now = Date.now();
-    clicks.current = [...clicks.current.filter((t) => now - t < 2500), now];
-    const recent = clicks.current;
-    if (recent.length >= 5) {
+    clicks.current = [...clicks.current.filter((t) => now - t < 1500), now];
+    if (clicks.current.length >= 5 || now < angryUntil.current) {
       clicks.current = [];
-      play("dizzy", 1800, { text: "I'm dizzy... 😵‍💫", fx: "💫", count: 3 });
-    } else if (recent.length >= 2 && now - recent[recent.length - 2] < 300) {
-      play("spin", 900, { text: "Double spin! 🌀", fx: "✨", count: 5 });
+      angryUntil.current = now + 1800;
+      react("angry", "shake", 1800, { text: "Hey! Stop poking me! 💢" });
     } else {
       randomReaction();
     }
@@ -288,6 +526,7 @@ export default function Mascot({ size = 140 }) {
     cancelAnimationFrame(raf.current);
     raf.current = 0;
     setFlying(false);
+    setMoving(null);
     drag.current = {
       startX: e.clientX,
       startY: e.clientY,
@@ -309,7 +548,7 @@ export default function Mascot({ size = 140 }) {
       if (p.flips.length >= 5 && now > p.cooldown) {
         p.flips = [];
         p.cooldown = now + 2500;
-        play("purr", 1400, { text: "Purrr~ 💙", fx: "💙", count: 5 });
+        react("happy", "purr", 1600, { text: "Purrr~ 💙", fx: "💙", count: 5 });
       }
     }
     p.dir = dir;
@@ -329,6 +568,7 @@ export default function Mascot({ size = 140 }) {
     if (!d.moved) {
       d.moved = true;
       setDragging(true);
+      setOverride(null);
       setMessage(null);
     }
     setPos(clamp({ x: d.originX + dx, y: d.originY + dy }));
@@ -342,8 +582,7 @@ export default function Mascot({ size = 140 }) {
     setDragging(false);
     const first = d.samples[0];
     const last = d.samples[d.samples.length - 1];
-    const dt = Math.max(last.t - first.t, 1);
-    const frame = 16 / dt;
+    const frame = 16 / Math.max(last.t - first.t, 1);
     const vx = Math.max(-45, Math.min(45, (last.x - first.x) * frame));
     const vy = Math.max(-45, Math.min(45, (last.y - first.y) * frame));
     if (Math.hypot(vx, vy) > 10 && !reducedMotion()) {
@@ -351,7 +590,7 @@ export default function Mascot({ size = 140 }) {
       fling(vx, vy);
     } else {
       save(posRef.current);
-      play("land", 600);
+      react("jump", null, 800);
     }
   };
 
@@ -377,6 +616,8 @@ export default function Mascot({ size = 140 }) {
 
   const classes = [
     "mascot",
+    `mood-${state}`,
+    anim && "is-sprite",
     dragging && "is-dragging",
     flying && "is-flying",
     sleeping && "is-sleeping",
@@ -394,6 +635,8 @@ export default function Mascot({ size = 140 }) {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onPointerEnter={() => setHovering(true)}
+      onPointerLeave={() => setHovering(false)}
       onKeyDown={onKeyDown}
       role="button"
       tabIndex={0}
@@ -425,12 +668,71 @@ export default function Mascot({ size = 140 }) {
       >
         <div className="mascot-bob">
           <div className="mascot-tilt" ref={tiltRef}>
-            <img
-              className="mascot-img"
-              src={mascotImg}
-              alt=""
-              draggable="false"
-            />
+            {anim ? (
+              <Sprite anim={anim} flip={moving?.dir < 0} />
+            ) : (
+              <svg
+                className="mascot-svg"
+                viewBox={`0 0 ${VB.w} ${VB.h}`}
+                aria-hidden="true"
+                focusable="false"
+              >
+                <defs>
+                  {Object.entries(SCLERA).map(([k, s]) => (
+                    <clipPath id={`mascot-sclera-${k}`} key={k}>
+                      <ellipse
+                        cx={s.cx}
+                        cy={s.cy}
+                        rx={s.rx}
+                        ry={s.ry}
+                        transform={`rotate(${s.angle} ${s.cx} ${s.cy})`}
+                      />
+                    </clipPath>
+                  ))}
+                </defs>
+
+                <g className="m-tail">
+                  <Img part="tail" href={tailImg} />
+                </g>
+                <image href={baseImg} x="0" y="0" width={VB.w} height={VB.h} />
+
+                {/* fish-suit eyes: pupils follow the cursor */}
+                {[
+                  ["L", "pupilL", pupilLImg],
+                  ["R", "pupilR", pupilRImg],
+                ].map(([k, part, href], i) => (
+                  <g clipPath={`url(#mascot-sclera-${k})`} key={k}>
+                    <g className="m-track" ref={(el) => (pupilRefs.current[i] = el)}>
+                      <Img part={part} href={href} />
+                    </g>
+                  </g>
+                ))}
+
+                {/* cat eyes: follow the cursor and blink */}
+                {[
+                  ["eyeL", eyeLImg],
+                  ["eyeR", eyeRImg],
+                ].map(([part, href], i) => (
+                  <g className="m-track" key={part} ref={(el) => (eyeRefs.current[i] = el)}>
+                    <g className="m-eye">
+                      <Img part={part} href={href} />
+                    </g>
+                  </g>
+                ))}
+
+                {state === "happy" && (
+                  <g className="m-line" fill="none">
+                    <path d="M214 482 Q257 428 300 482" />
+                    <path d="M434 424 Q477 370 520 424" />
+                  </g>
+                )}
+                <Img part="mouth" href={mouthImg} />
+
+                <g className="m-paw">
+                  <Img part="paw" href={pawImg} />
+                </g>
+              </svg>
+            )}
           </div>
         </div>
       </div>

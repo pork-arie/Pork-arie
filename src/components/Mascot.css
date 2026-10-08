@@ -9,7 +9,8 @@
   outline: none;
 }
 
-.mascot:focus-visible .mascot-img {
+.mascot:focus-visible .mascot-svg,
+.mascot:focus-visible .m-sprite {
   filter: drop-shadow(0 0 8px #8fa2ee);
 }
 
@@ -18,10 +19,11 @@
   cursor: grabbing;
 }
 
-/* layers: act (reactions) > bob (idle) > tilt (cursor lean) > img */
+/* layers: act (reactions) > bob (idle) > tilt (cursor lean) > artwork */
 .mascot-act,
 .mascot-bob,
 .mascot-tilt {
+  position: relative;
   width: 100%;
   height: 100%;
   transform-origin: 50% 100%;
@@ -36,66 +38,115 @@
   transition: transform 0.25s ease-out;
 }
 
-.mascot-img {
+.mascot.is-sprite .mascot-bob {
+  animation: none;
+}
+
+.mascot.is-sprite .mascot-tilt {
+  transform: none !important;
+}
+
+/* ---- sprite animations ---- */
+.m-sprite {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 128%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 6px 10px rgba(20, 30, 90, 0.2));
+}
+
+.m-sprite.is-flipped {
+  transform: translateX(-50%) scaleX(-1);
+}
+
+/* ---- layered 3D artwork ---- */
+.mascot-svg {
   display: block;
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  overflow: visible;
   filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
   transform-origin: 50% 100%;
-  transition: transform 0.2s ease, filter 0.6s ease;
+  transition: transform 0.2s ease;
 }
 
-.mascot:hover .mascot-img {
-  transform: scale(1.05) translateY(-3px);
+.mascot:hover .mascot-svg {
+  transform: scale(1.04) translateY(-3px);
 }
 
-/* dragging / flying */
-.mascot.is-dragging .mascot-bob {
+.mascot-svg g {
+  transform-box: view-box;
+}
+
+.m-track {
+  transition: transform 0.15s ease-out;
+}
+
+.m-eye {
+  transform-box: fill-box !important;
+  transform-origin: center;
+  transition: transform 0.12s ease, opacity 0.1s;
+}
+
+.mascot.is-blinking .m-eye {
+  transform: scaleY(0.08);
+}
+
+.mascot.mood-happy .m-eye {
+  opacity: 0;
+}
+
+.m-line path {
+  stroke: #1b2452;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.m-tail {
+  transform-origin: 160px 715px;
+  animation: m-wag 1.6s ease-in-out infinite;
+}
+
+.mascot.mood-happy .m-tail {
+  animation-duration: 0.4s;
+}
+
+.m-paw {
+  transform-origin: 505px 650px;
+}
+
+.mascot.mood-happy .m-paw {
+  animation: m-paw-bounce 0.35s ease-in-out infinite;
+}
+
+@keyframes m-wag {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes m-paw-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---- body reactions ---- */
+.mascot.is-dragging .mascot-act {
   animation: mascot-wiggle 0.4s ease-in-out infinite;
 }
 
-.mascot.is-dragging .mascot-img {
-  transform: scale(1.08);
-}
-
-.mascot.is-flying .mascot-bob {
+.mascot.is-flying .mascot-act {
   transform-origin: 50% 50%;
   animation: mascot-tumble 0.6s linear infinite;
 }
 
-/* sleeping */
-.mascot.is-sleeping .mascot-bob {
-  animation: mascot-breathe 3.6s ease-in-out infinite;
-}
-
-.mascot.is-sleeping .mascot-particle {
-  font-size: 28px;
-  animation-duration: 2.2s;
-}
-
-.mascot.is-sleeping .mascot-tilt {
-  transform: translateY(6px) rotate(-12deg) !important;
-}
-
-.mascot.is-sleeping .mascot-img {
-  filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25)) brightness(0.9)
-    saturate(0.85);
-}
-
-/* reactions */
-.act-jump { animation: mascot-jump 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) 2; }
-.act-spin { animation: mascot-spin 0.9s ease-in-out; transform-origin: 50% 50%; }
-.act-dance { animation: mascot-dance 0.425s ease-in-out 4; }
-.act-flip { animation: mascot-flip 1s ease-in-out; transform-origin: 50% 50%; }
-.act-shake { animation: mascot-shake 0.2s ease-in-out 4; }
+.act-shake { animation: mascot-shake 0.2s ease-in-out 6; }
 .act-squish { animation: mascot-squish 0.9s ease-out; }
-.act-wave { animation: mascot-wave 0.5s ease-in-out 3; }
 .act-purr { animation: mascot-purr 0.14s linear 10; }
-.act-dizzy { animation: mascot-dizzy 0.6s ease-in-out 3; transform-origin: 50% 70%; }
-.act-surprised { animation: mascot-surprised 0.7s cubic-bezier(0.3, 1.8, 0.5, 1); }
 .act-bonk { animation: mascot-bonk 0.35s ease-out; transform-origin: 50% 50%; }
-.act-land { animation: mascot-land 0.6s cubic-bezier(0.3, 1.6, 0.5, 1); }
 .act-hold-down { animation: mascot-hold-down 0.7s ease-out; }
 .act-hold-up { animation: mascot-hold-up 0.7s ease-out; }
 
@@ -117,7 +168,7 @@
   opacity: 0;
 }
 
-/* speech bubble */
+/* ---- speech bubble ---- */
 .mascot-bubble {
   position: absolute;
   bottom: 100%;
@@ -159,7 +210,11 @@
   border-bottom-color: #fff;
 }
 
-/* floating emoji (hearts, sparkles, zzz...) */
+.mascot.is-sleeping .mascot-bubble {
+  bottom: 70%;
+}
+
+/* ---- floating emoji (hearts, sparkles, zzz...) ---- */
 .mascot-particle {
   position: absolute;
   top: 15%;
@@ -170,14 +225,14 @@
   animation: mascot-float 1.4s ease-out forwards;
 }
 
+.mascot.is-sleeping .mascot-particle {
+  top: 45%;
+  animation-duration: 2.2s;
+}
+
 @keyframes mascot-bob {
   0%, 100% { transform: translateY(0) scale(1, 1); }
   50% { transform: translateY(-6px) scale(0.98, 1.02); }
-}
-
-@keyframes mascot-breathe {
-  0%, 100% { transform: scale(1, 1); }
-  50% { transform: scale(1.03, 0.97); }
 }
 
 @keyframes mascot-wiggle {
@@ -192,32 +247,6 @@
 @keyframes mascot-shadow {
   0%, 100% { transform: scaleX(1); }
   50% { transform: scaleX(0.85); }
-}
-
-@keyframes mascot-jump {
-  0% { transform: translateY(0) scale(1.1, 0.9); }
-  40% { transform: translateY(-26px) scale(0.95, 1.05); }
-  100% { transform: translateY(0) scale(1, 1); }
-}
-
-@keyframes mascot-spin {
-  0% { transform: perspective(600px) rotateY(0); }
-  100% { transform: perspective(600px) rotateY(720deg); }
-}
-
-@keyframes mascot-dance {
-  0%, 100% { transform: translate(0, 0) rotate(0); }
-  25% { transform: translate(-10px, -12px) rotate(-10deg); }
-  50% { transform: translate(0, 0) rotate(0); }
-  75% { transform: translate(10px, -12px) rotate(10deg); }
-}
-
-@keyframes mascot-flip {
-  0% { transform: translateY(0) rotate(0); }
-  20% { transform: translateY(6px) scale(1.1, 0.9); }
-  60% { transform: translateY(-60px) rotate(-360deg); }
-  85% { transform: translateY(0) rotate(-360deg) scale(1.1, 0.9); }
-  100% { transform: translateY(0) rotate(-360deg); }
 }
 
 @keyframes mascot-shake {
@@ -235,38 +264,14 @@
   100% { transform: scale(1, 1); }
 }
 
-@keyframes mascot-wave {
-  0%, 100% { transform: rotate(0); }
-  30% { transform: rotate(-12deg); }
-  70% { transform: rotate(8deg); }
-}
-
 @keyframes mascot-purr {
   0%, 100% { transform: translateX(0) scale(1.03, 0.97); }
   50% { transform: translateX(1.5px) scale(1.03, 0.97); }
 }
 
-@keyframes mascot-dizzy {
-  0%, 100% { transform: rotate(0) translateX(0); }
-  25% { transform: rotate(-15deg) translateX(-8px); }
-  75% { transform: rotate(15deg) translateX(8px); }
-}
-
-@keyframes mascot-surprised {
-  0% { transform: translateY(0) scale(1); }
-  40% { transform: translateY(-30px) scale(1.12); }
-  100% { transform: translateY(0) scale(1); }
-}
-
 @keyframes mascot-bonk {
   0% { transform: scale(1, 1); }
   30% { transform: scale(0.75, 1.2); }
-  100% { transform: scale(1, 1); }
-}
-
-@keyframes mascot-land {
-  0% { transform: scale(1.25, 0.75); }
-  50% { transform: scale(0.92, 1.08); }
   100% { transform: scale(1, 1); }
 }
 
