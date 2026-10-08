@@ -7,36 +7,34 @@ import eyeRImg from "./assets/layers/eyeR.webp";
 import pupilLImg from "./assets/layers/pupilL.webp";
 import pupilRImg from "./assets/layers/pupilR.webp";
 import mouthImg from "./assets/layers/mouth.webp";
+import idleImg from "./assets/animations/idle.webp";
+import happyImg from "./assets/animations/happy.webp";
 import walkImg from "./assets/animations/walk.webp";
 import runImg from "./assets/animations/run.webp";
 import jumpImg from "./assets/animations/jump.webp";
-import fallImg from "./assets/animations/fall.webp";
-import rollImg from "./assets/animations/roll.webp";
+import excitedImg from "./assets/animations/excited.webp";
 import waveImg from "./assets/animations/wave.webp";
-import danceImg from "./assets/animations/dance.webp";
 import lookImg from "./assets/animations/look.webp";
 import sleepImg from "./assets/animations/sleep.webp";
-import happyImg from "./assets/animations/happy.webp";
 import sadImg from "./assets/animations/sad.webp";
-import angryImg from "./assets/animations/angry.webp";
-import surprisedImg from "./assets/animations/surprised.webp";
-import celebrateImg from "./assets/animations/celebrate.webp";
+import panicImg from "./assets/animations/panic.webp";
+import dragImg from "./assets/animations/drag.webp";
 import "./Mascot.css";
 
 // "Cat in a Fish Suit" mascot.
 //
-// Normal / happy: the original 3D artwork, split into layers so the eyes
+// Normal / hover: the original 3D artwork, split into layers so the eyes
 // follow the cursor and blink, the tail wags and the paw bounces.
-// Everything else plays frame-by-frame 3D sprite animations (walk, run, jump,
-// fall, roll, wave, dance, look around, sleep, wake, happy, celebrate, sad,
-// angry, surprised), colour-matched to the original and cross-faded.
+// Everything else plays frame-by-frame animations (idle, happy, walk, run,
+// jump, excited, wave, look around, sleep, wake, sad, panic, drag),
+// colour-matched and sized to the original and cross-faded.
 //
 // Interactions:
-// - Hover: happy. Click: random reaction. Poke 5x fast: angry.
+// - Hover: happy face. Click: random reaction. Poke 5x fast: panic.
 // - Rub the cursor back and forth over it: happy purr.
-// - Drag it anywhere; throw it and it rolls through the air, then falls flat.
+// - Drag it: picked up by the fin and swings. Throw it: panics in the air.
 // - Cursor leaves the page: sad. Comes back far away: runs to it.
-// - Fast scroll: surprised. Idle: looks around, wanders, then falls asleep.
+// - Fast scroll: panic. Idle: looks around, fidgets, wanders, then sleeps.
 // Position is remembered.
 
 const STORAGE_KEY = "mascot-pos";
@@ -61,31 +59,33 @@ const SCLERA = {
 
 // Sprite animations: one horizontal strip of 200x300 frames per animation.
 const CELL = { w: 200, h: 300 }; // frame size at size=140
+// once: stop on the last frame. reverse: play backwards.
+// loopFrom: after the last frame, jump back to this frame (not to 0).
 const ANIMS = {
-  walk: { src: walkImg, frames: 7, fps: 10 },
-  run: { src: runImg, frames: 8, fps: 14 },
-  jump: { src: jumpImg, frames: 6, fps: 10, once: true },
-  fall: { src: fallImg, frames: 5, fps: 9, once: true },
-  roll: { src: rollImg, frames: 7, fps: 14 },
-  wave: { src: waveImg, frames: 6, fps: 8 },
-  dance: { src: danceImg, frames: 7, fps: 8 },
-  look: { src: lookImg, frames: 6, fps: 4, once: true },
-  sleep: { src: sleepImg, frames: 6, fps: 5, once: true },
-  wake: { src: sleepImg, frames: 6, fps: 8, once: true, reverse: true },
-  happy: { src: happyImg, frames: 7, fps: 9 },
-  sad: { src: sadImg, frames: 7, fps: 5 },
-  angry: { src: angryImg, frames: 7, fps: 8 },
-  surprised: { src: surprisedImg, frames: 7, fps: 8 },
-  celebrate: { src: celebrateImg, frames: 7, fps: 9 },
+  idle: { src: idleImg, frames: 5, fps: 3, once: true },
+  happy: { src: happyImg, frames: 5, fps: 5 },
+  walk: { src: walkImg, frames: 5, fps: 8 },
+  run: { src: runImg, frames: 5, fps: 11 },
+  jump: { src: jumpImg, frames: 5, fps: 8, once: true },
+  excited: { src: excitedImg, frames: 5, fps: 6 },
+  wave: { src: waveImg, frames: 5, fps: 6 },
+  look: { src: lookImg, frames: 5, fps: 2.5, once: true },
+  sleep: { src: sleepImg, frames: 5, fps: 3, once: true },
+  wake: { src: sleepImg, frames: 5, fps: 7, once: true, reverse: true },
+  sad: { src: sadImg, frames: 5, fps: 2.5, once: true },
+  panic: { src: panicImg, frames: 5, fps: 7 },
+  // pinch, lift, then swing back and forth (frames 3-4) while held
+  drag: { src: dragImg, frames: 4, fps: 5, loopFrom: 2 },
 };
+// While dragging, the fin tip is held under the cursor. In the drag strip
+// the tip sits 40px from the top of a 200x300 frame (at size=140).
+const GRAB_TIP = { y: 40 };
 
 const REACTIONS = [
   { anim: "jump", ms: 1300, fx: "💙", say: ["Hi there! 👋", "Hello! 💙"] },
   { anim: "wave", ms: 1800, say: ["Need a website? 🐟", "Hire Anghel! ✨"] },
-  { anim: "dance", ms: 2200, fx: "🎵", say: ["♪ Blub blub ♪", "Dance with me!"] },
-  { anim: "celebrate", ms: 1800, fx: "✨", say: ["Yay! ✨", "Let's build something!"] },
-  { anim: "surprised", ms: 1300, say: ["Oh! You found me! 👀"] },
-  { anim: "happy", ms: 1600, fx: "💙", say: ["Boop! 💙", "Hehe~"] },
+  { anim: "excited", ms: 2200, fx: "✨", say: ["Yay! ✨", "Let's build something!"] },
+  { anim: "happy", ms: 1800, fx: "💙", say: ["Boop! 💙", "Hehe~", "Oh! You found me! 👀"] },
 ];
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -118,7 +118,7 @@ const Img = ({ part, href }) => (
 function Sprite({ anim, flip }) {
   const ref = useRef(null);
   useEffect(() => {
-    const { frames, fps, once, reverse } = ANIMS[anim];
+    const { frames, fps, once, reverse, loopFrom = 0 } = ANIMS[anim];
     const el = ref.current;
     let i = 0;
     const show = () => {
@@ -129,7 +129,7 @@ function Sprite({ anim, flip }) {
     if (reducedMotion()) return;
     const id = setInterval(() => {
       if (once && i === frames - 1) return clearInterval(id);
-      i = (i + 1) % frames;
+      i = i === frames - 1 ? loopFrom : i + 1;
       show();
     }, 1000 / fps);
     return () => clearInterval(id);
@@ -189,17 +189,17 @@ export default function Mascot({ size = 140 }) {
   const [hovering, setHovering] = useState(false);
   const [moving, setMoving] = useState(null); // { anim: "walk" | "run", dir: -1 | 1 }
   const [action, setAction] = useState(null); // body animation { name, key }
-  const [override, setOverride] = useState(null); // timed sprite animation / "happy"
+  const [override, setOverride] = useState(null); // timed sprite animation / "hover"
   const [message, setMessage] = useState(null);
   const [particles, setParticles] = useState([]);
 
-  // What to show right now: a sprite animation name, or "neutral"/"happy"
+  // What to show right now: a sprite animation name, or "neutral"/"hover"
   // for the layered 3D artwork.
   const state =
     moving?.anim ??
-    (flying ? "roll" : dragging ? "surprised" : null) ??
+    (flying ? "panic" : dragging ? "drag" : null) ??
     override ??
-    (sleeping ? "sleep" : hovering ? "happy" : "neutral");
+    (sleeping ? "sleep" : hovering ? "hover" : "neutral");
   const anim = ANIMS[state] ? state : null;
 
   useEffect(() => {
@@ -256,7 +256,7 @@ export default function Mascot({ size = 140 }) {
     const options = REACTIONS.filter((r) => r !== lastReaction.current);
     const r = pick(options);
     lastReaction.current = r;
-    react(r.anim ?? "happy", r.act, r.ms, { text: pick(r.say), fx: r.fx });
+    react(r.anim, r.act, r.ms, { text: pick(r.say), fx: r.fx });
   };
 
   // Walk or run along the screen to x.
@@ -400,7 +400,7 @@ export default function Mascot({ size = 140 }) {
       if (r && Math.abs(e.clientX - (r.left + r.width / 2)) > 250) {
         moveTo(e.clientX - r.width / 2, "run", "Wait for me! 💨");
       } else {
-        react("celebrate", null, 1600, { text: "Yay, you're back! 💙", fx: "💙" });
+        react("excited", null, 1800, { text: "Yay, you're back! 💙", fx: "💙" });
       }
     };
 
@@ -413,7 +413,7 @@ export default function Mascot({ size = 140 }) {
       const now = Date.now();
       if (Math.abs(dy) > 60 && now > scrollCool && !drag.current) {
         scrollCool = now + 1500;
-        react("surprised", dy > 0 ? "hold-down" : "hold-up", 900, {
+        react("panic", dy > 0 ? "hold-down" : "hold-up", 1000, {
           fx: "💦",
           count: 2,
         });
@@ -449,8 +449,13 @@ export default function Mascot({ size = 140 }) {
       if (sleepingRef.current || drag.current || raf.current) return;
       const r = wrapRef.current?.getBoundingClientRect();
       if (!r) return;
-      if (Math.random() < 0.5) {
-        react("look", null, 1600);
+      const roll = Math.random();
+      if (roll < 0.35) {
+        react("look", null, 2200);
+        return;
+      }
+      if (roll < 0.55) {
+        react("idle", null, 1800);
         return;
       }
       const far = pointerX !== null && Math.abs(pointerX - r.left) > 300;
@@ -479,6 +484,7 @@ export default function Mascot({ size = 140 }) {
     return () => {
       Object.values(t).forEach(clearTimeout);
       cancelAnimationFrame(raf.current);
+      document.documentElement.classList.remove("mascot-grabbing");
     };
   }, []);
 
@@ -521,15 +527,11 @@ export default function Mascot({ size = 140 }) {
         raf.current = 0;
         setFlying(false);
         save({ x, y });
-        react("fall", null, 1400, {
-          text: pick(["Oof! 😵", "Again! Again!", "That was fun!"]),
+        react("excited", null, 1800, {
+          text: pick(["Whew! 😵", "Again! Again!", "That was fun!"]),
           fx: "💫",
           count: 2,
         });
-        timers.current.getup = setTimeout(
-          () => react("jump", null, 900, { fx: "✨", count: 2 }),
-          1300,
-        );
         return;
       }
       raf.current = requestAnimationFrame(step);
@@ -543,7 +545,7 @@ export default function Mascot({ size = 140 }) {
     if (clicks.current.length >= 5 || now < angryUntil.current) {
       clicks.current = [];
       angryUntil.current = now + 1800;
-      react("angry", "shake", 1800, { text: "Hey! Stop poking me! 💢" });
+      react("panic", "shake", 1800, { text: "Hey! Stop poking me! 💢" });
     } else {
       randomReaction();
     }
@@ -600,8 +602,15 @@ export default function Mascot({ size = 140 }) {
       setDragging(true);
       setOverride(null);
       setMessage(null);
+      // glide into place under the cursor instead of jumping there
+      wrapRef.current?.classList.add("is-grabbed");
+      timers.current.grab = setTimeout(() => wrapRef.current?.classList.remove("is-grabbed"), 180);
+      document.documentElement.classList.add("mascot-grabbing");
     }
-    setPos(clamp({ x: d.originX + dx, y: d.originY + dy }));
+    // Hold him by the fin tip: the tip of the drag frame sits under the cursor.
+    const k = size / 140;
+    const boxBottom = e.clientY + (CELL.h - GRAB_TIP.y) * k;
+    setPos(clamp({ x: e.clientX - size / 2, y: boxBottom - height }));
   };
 
   const onPointerUp = () => {
@@ -610,6 +619,7 @@ export default function Mascot({ size = 140 }) {
     if (!d) return;
     if (!d.moved) return onClick();
     setDragging(false);
+    document.documentElement.classList.remove("mascot-grabbing");
     // Only the motion right before release counts (pause, then let go = drop).
     const now = performance.now();
     const recent = d.samples.filter((s) => now - s.t < 80);
@@ -753,7 +763,7 @@ export default function Mascot({ size = 140 }) {
                   </g>
                 ))}
 
-                {state === "happy" && (
+                {state === "hover" && (
                   <g className="m-line" fill="none">
                     <path d="M214 482 Q257 428 300 482" />
                     <path d="M434 424 Q477 370 520 424" />
