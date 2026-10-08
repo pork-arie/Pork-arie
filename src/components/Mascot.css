@@ -9,8 +9,8 @@
   outline: none;
 }
 
-.mascot:focus-visible .mascot-svg {
-  filter: drop-shadow(0 0 6px #8fa2ee);
+.mascot:focus-visible .mascot-img {
+  filter: drop-shadow(0 0 8px #8fa2ee);
 }
 
 .mascot.is-dragging {
@@ -24,21 +24,29 @@
   animation: mascot-bob 2.6s ease-in-out infinite;
 }
 
-.mascot-svg {
+.mascot-tilt {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 85%;
+  transition: transform 0.25s ease-out;
+}
+
+.mascot-img {
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  pointer-events: none;
   filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
+  transform-origin: 50% 100%;
   transition: transform 0.2s ease;
 }
 
 .mascot.is-dragging .mascot-bob {
-  animation: none;
+  animation: mascot-wiggle 0.4s ease-in-out infinite;
 }
 
-.mascot.is-dragging .mascot-svg {
-  transform: rotate(-8deg) scale(1.06);
+.mascot.is-dragging .mascot-img {
+  transform: scale(1.08);
 }
 
 .mascot.is-happy .mascot-bob {
@@ -46,60 +54,20 @@
 }
 
 .mascot-shadow {
-  fill: rgba(20, 30, 90, 0.18);
-  transform-origin: 100px 232px;
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: -4px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(20, 30, 90, 0.18);
+  filter: blur(2px);
   animation: mascot-shadow 2.6s ease-in-out infinite;
+  transition: opacity 0.2s;
 }
 
 .mascot.is-dragging .mascot-shadow {
   opacity: 0;
-}
-
-.mascot-pupil {
-  transition: transform 0.12s ease-out;
-}
-
-/* blinking */
-.mascot-eye-open {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: mascot-blink 4.5s infinite;
-}
-
-.mascot-eye-happy {
-  opacity: 0;
-}
-
-.mascot.is-happy .mascot-eye-open {
-  opacity: 0;
-}
-
-.mascot.is-happy .mascot-eye-happy {
-  opacity: 1;
-}
-
-.mascot-tongue {
-  transform-box: fill-box;
-  transform-origin: top center;
-  transition: transform 0.2s ease;
-}
-
-.mascot.is-happy .mascot-tongue {
-  transform: scale(1.3);
-}
-
-.mascot-tail {
-  transform-origin: 62px 198px;
-  animation: mascot-wag 1.4s ease-in-out infinite;
-}
-
-.mascot.is-dragging .mascot-tail,
-.mascot.is-happy .mascot-tail {
-  animation-duration: 0.35s;
-}
-
-.mascot.is-happy .mascot-paws {
-  animation: mascot-wave 0.3s ease-in-out 4;
 }
 
 .mascot-bubble {
@@ -133,6 +101,7 @@
   position: absolute;
   top: 10%;
   right: 0;
+  z-index: 1;
   font-size: 22px;
   pointer-events: none;
   animation: mascot-float 1.2s ease-out forwards;
@@ -141,6 +110,11 @@
 @keyframes mascot-bob {
   0%, 100% { transform: translateY(0) scale(1, 1); }
   50% { transform: translateY(-6px) scale(0.98, 1.02); }
+}
+
+@keyframes mascot-wiggle {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
 }
 
 @keyframes mascot-shadow {
@@ -152,21 +126,6 @@
   0% { transform: translateY(0) scale(1.1, 0.9); }
   40% { transform: translateY(-22px) scale(0.95, 1.05); }
   100% { transform: translateY(0) scale(1, 1); }
-}
-
-@keyframes mascot-blink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.1); }
-}
-
-@keyframes mascot-wag {
-  0%, 100% { transform: rotate(-6deg); }
-  50% { transform: rotate(10deg); }
-}
-
-@keyframes mascot-wave {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
 }
 
 @keyframes mascot-pop {
