@@ -48,10 +48,10 @@ priority list: the first thing that's true wins.
 
 ```js
 const state =
-  moving?.anim ??                                     // walking/running somewhere
-  (flying ? "roll" : dragging ? "surprised" : null) ?? // being thrown / held
-  override ??                                         // a reaction that's playing (jump, wave…)
-  (sleeping ? "sleep" : hovering ? "happy" : "neutral");
+  moving?.anim ??                                   // walking/running somewhere
+  (flying ? "panic" : dragging ? "drag" : null) ??   // being thrown / held
+  override ??                                       // a reaction that's playing (jump, wave…)
+  (sleeping ? "sleep" : hovering ? "hover" : "neutral");
 ```
 
 If `state` is the name of an animation in `ANIMS`, the flipbook plays.
@@ -143,7 +143,7 @@ Every interaction is wired up the same way:
 | change what it says when clicked | the `say: [...]` lists in `REACTIONS` |
 | make it fall asleep later | `SLEEP_AFTER = 20000` (milliseconds) |
 | make an animation faster | its `fps` in `ANIMS` |
-| add a click reaction | add `{ anim: "dance", ms: 2000, say: ["Hello!"] }` to `REACTIONS` |
+| add a click reaction | add `{ anim: "look", ms: 2000, say: ["Hello!"] }` to `REACTIONS` |
 | stop it wandering | delete the `useEffect` under "While idle: now and then look around…" |
 | change the floating emoji | the `fx: "💙"` values |
 | make it bigger | `size={…}` in `App.jsx` |
@@ -161,8 +161,6 @@ You only need this to rebuild the images or make a new character.
 ```bash
 cd src/mascot/tools
 pip install -r requirements.txt
-# AI upscaling model for step 3 (38 MB):
-curl -L -o EDSR_x4.pb https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x4.pb
 mkdir out
 ```
 
@@ -194,42 +192,40 @@ python 2_make_layers.py out/cutout.png ../assets/layers
 It prints the `P` and `SCLERA` tables. If you change the artwork, paste them
 into `Mascot.jsx`.
 
-### Step 3: turn a sprite sheet into animation strips
+### Step 3: turn the animation sheets into strips
 
 ```bash
-python 3_make_animations.py source/sprite-sheet-3d.webp out/cutout.png ../assets/animations
+python 3_make_animations.py out/cutout.png ../assets/animations
 ```
 
-For every animation in `PANELS`:
+The sheets are in `source/hd/`: one image per animation, with the poses in a
+row on a white background (`walk.webp`, `sleep.webp`, `drag.webp`…). For each
+one listed in `ANIMS` at the top of the script:
 
-1. **Upscale 4×** with an AI model (EDSR), because the frames on the sheet are
-   only about 60 px.
-2. **Find the frames.** Each dark-blue blob is one character.
-3. **Cut each frame out**: GrabCut again, plus a "paint-bucket" fill from the
-   corners to catch faces that are close to the background colour.
-4. **Resize** so the character matches the original picture's height and
+1. **Find the frames.** Each dark-blue blob is one character.
+2. **Cut each frame out.** A "paint-bucket" fill from the edges removes the
+   white background. Warm cream pixels next to the body are always kept, so
+   side-view faces don't turn see-through.
+3. **Resize** so the character matches the original picture's height and
    head size (measured automatically). Then switching between the normal pose
    and an animation looks like one body, not a sudden resize.
-5. **Colour-match** the suit to the original picture. It shifts the average
+4. **Colour-match** the suit to the original picture. It shifts the average
    colour and contrast in Lab colour space so the sprites blend in.
-6. **Line up** the frames with their feet on the same line, and save one strip.
+5. **Line up** the frames with their feet on the bottom edge (or, for `drag`,
+   with the fin tip in the same place, because that's where the cursor holds
+   him), and save one strip.
 
 Strips are saved at **2× resolution** (`--hd 2`, the default) so they stay
-sharp on phones and retina screens; the CSS shrinks them to fit. Use `--hd 1`
-for files about half the size.
+sharp on phones and retina screens; the CSS shrinks them to fit.
 
-**Why the animations are softer than the normal pose:** the normal pose comes
-from a big original picture (~650 px tall). The animation frames on the sheet
-are only ~60 px, and upscaling can't fully invent the missing detail. For
-truly HD animations, export the sprite sheet bigger, ideally 3–4× larger,
-and run step 3 again.
+It prints the `ANIMS` frame counts. If they change, copy them into `ANIMS` in
+`Mascot.jsx`.
 
-It prints how many frames each strip has. Copy those into `ANIMS` in `Mascot.jsx`.
-
-**Using a different sprite sheet.** Open it in an image viewer and write down
-the rectangle around each row of frames into `PANELS`. Leave out the title
-label and the frame numbers. Run step 3 again and check the strips. If a frame
-looks broken, list it in `DROP`.
+**Adding a new animation.** Put a sheet in `source/hd/` (poses in one row,
+white background, a little gap between poses), add a line to `ANIMS` in the
+script, and run step 3. If the sheet has labels, use `crop` to leave them out
+or `hide` to paint over them. Use `skip` to leave out a frame that doesn't
+fit. Then import the new strip in `Mascot.jsx` and add it to `ANIMS` there.
 
 ---
 
@@ -237,8 +233,8 @@ looks broken, list it in `DROP`.
 
 1. Add the message "Thanks for visiting!" to the jump reaction.
 2. Make the mascot fall asleep after 5 seconds, then put it back to 20.
-3. Make the `dance` animation twice as fast.
-4. Make double-click play `celebrate`. Hint: in `onClick`, check whether the
+3. Make the `excited` animation twice as fast.
+4. Make double-click play `wave`. Hint: in `onClick`, check whether the
    last two clicks were less than 300 ms apart.
-5. Harder: add a new reaction that plays `roll` while moving the mascot across
-   the screen with `moveTo(...)`.
+5. Harder: make the mascot `run` to the other side of the screen when it's
+   poked 5 times, using `moveTo(...)`.

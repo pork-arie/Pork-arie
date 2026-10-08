@@ -1,21 +1,19 @@
-"""Step 3 - turn a sprite sheet into animation strips.
+"""Step 3 - turn the animation sheets into animation strips.
 
 Usage:
-    python 3_make_animations.py source/sprite-sheet-3d.webp out/cutout.png ../assets/animations
+    python 3_make_animations.py out/cutout.png ../assets/animations
 
-Needs the EDSR upscaling model (38 MB, download once):
-    curl -L -o EDSR_x4.pb https://raw.githubusercontent.com/Saafke/EDSR_Tensorflow/master/models/EDSR_x4.pb
+Reads the sheets in source/hd/ (one row of poses per animation, see ANIMS
+below) and, for every animation:
+  1. finds each frame (each dark-blue body is one frame),
+  2. cuts the frame out of the white background,
+  3. resizes it so the character has the same height and head size as the
+     original artwork (out/cutout.png from step 1),
+  4. shifts the suit colour to match the original artwork,
+  5. lines the frames up side by side in one strip: walk.webp, run.webp ...
 
-For every animation on the sheet this:
-  1. upscales its panel 4x with an AI model (the frames are tiny, ~60px),
-  2. finds each frame (each dark-blue body is one frame),
-  3. cuts the frame out of the background,
-  4. resizes it so the character is the same size in every animation,
-  5. shifts the suit colour to match the original artwork (out/cutout.png),
-  6. lines the frames up side by side in one strip: walk.webp, run.webp ...
-
-It prints the frame count of each strip - copy those into ANIMS in Mascot.jsx.
-The upscaled panels are cached in out/upscaled, so re-runs are fast.
+It prints the ANIMS table to paste into Mascot.jsx (frame count and frame
+height of each strip).
 """
 import argparse
 import json
@@ -26,120 +24,104 @@ import numpy as np
 from PIL import Image
 
 ap = argparse.ArgumentParser()
-ap.add_argument("sheet")
-ap.add_argument("cutout", help="the original character from step 1, used for colour matching")
+ap.add_argument("cutout", help="the original character from step 1 (size and colour reference)")
 ap.add_argument("outdir")
-ap.add_argument("--model", default="EDSR_x4.pb")
-ap.add_argument("--cache", default="out/upscaled")
 ap.add_argument("--hd", type=float, default=2, help="pixel density: 2 = sharp on retina/phone screens")
 args = ap.parse_args()
 os.makedirs(args.outdir, exist_ok=True)
-os.makedirs(args.cache, exist_ok=True)
+HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Where each animation sits on the sheet: (left, top, right, bottom) of the
-# row of frames, without the title pill and the frame numbers.
-PANELS = {
-    "walk": (18, 288, 766, 410), "run": (778, 288, 1518, 410),
-    "jump": (18, 458, 515, 590), "fall": (525, 482, 1000, 590), "roll": (1010, 482, 1518, 590),
-    "wave": (18, 652, 515, 746), "dance": (525, 645, 1000, 746), "look": (1015, 656, 1518, 746),
-    "sleep": (18, 798, 515, 876), "happy": (525, 803, 1000, 877), "sad": (1015, 803, 1518, 877),
-    "angry": (18, 930, 515, 996), "surprised": (525, 925, 1000, 996), "celebrate": (1015, 928, 1518, 996),
+# Each animation: which sheet, which part of it (left, top, right, bottom -
+# leave out labels), which frames to skip, and how to measure its size:
+#   "front" - match height and head width   "side" - match height only
+#   measure - which frames show the character standing (for sizing)
+ANIMS = {
+    "idle":    dict(sheet="idle.webp"),
+    "happy":   dict(sheet="happy.webp"),
+    "walk":    dict(sheet="walk.webp", fit="side"),
+    "run":     dict(sheet="run.webp", fit="side"),
+    "jump":    dict(sheet="jump.webp", measure=[0, 4]),
+    "excited": dict(sheet="excited-wave.webp", crop=(0, 0, 1774, 482), hide=[(0, 0, 268, 90)], measure=[0, 2]),
+    "wave":    dict(sheet="excited-wave.webp", crop=(0, 482, 1774, 887), hide=[(0, 0, 268, 75)]),
+    "look":    dict(sheet="look.webp", crop=(0, 0, 1774, 680)),
+    "sleep":   dict(sheet="sleep.webp", measure=[0]),
+    "sad":     dict(sheet="sad.webp", measure=[0]),
+    "panic":   dict(sheet="panic.webp", crop=(0, 0, 1774, 680), measure=[0, 2]),
+    # frame 1 (hand still reaching) is skipped and the hand is removed - on the
+    # website the visitor's own cursor is the hand holding the fin
+    # align="tip": frames are lined up by the fin tip (where the cursor holds
+    # him) instead of the feet, so the tip stays still and the body swings
+    "drag":    dict(sheet="drag.webp", crop=(0, 0, 1536, 795), skip=[0], measure=[0], no_hand=True, align="tip"),
 }
-# The sheet draws each row at a different scale. Animations in the same row
-# share a "reference" standing pose whose height we measure...
-REF = {"walk": "walk", "run": "walk", "jump": "jump", "fall": "jump", "roll": "jump",
-       "wave": "wave", "dance": "wave", "look": "wave", "sleep": "happy", "happy": "happy",
-       "sad": "happy", "angry": "angry", "surprised": "angry", "celebrate": "angry"}
-# ...plus a hand-tuned correction, found by comparing head sizes on screen.
-TUNE = {"happy": 0.87, "angry": 0.8}
-# Frames that didn't cut out cleanly (side-view face too close to the background).
-DROP = {"walk": [2, 5], "look": [4, 5]}
 
-# Sizes at 1x (mascot 140px wide). --hd 2 saves everything twice as big so it
-# stays sharp on high-density screens; the CSS scales it back down.
-TARGET = round(180 * args.hd)            # character height
-CW, CH = round(200 * args.hd), round(300 * args.hd)   # frame size
-FOOT = round(8 * args.hd)                # gap under the feet
-
-sheet = cv2.imread(args.sheet)
-sr = None
+TARGET_W = 140 * args.hd      # the mascot box is 140px wide at size=140
+CW = round(200 * args.hd)     # frame width in the strip
+TIP_Y = round(40 * args.hd)   # where the fin tip sits in "tip"-aligned frames
 
 
-def upscaled(name):
-    """Panel image, 4x bigger. Cached because the model is slow (~10s per panel)."""
-    global sr
-    path = os.path.join(args.cache, name + ".png")
-    if not os.path.exists(path):
-        if sr is None:
-            sr = cv2.dnn_superres.DnnSuperResImpl_create()
-            sr.readModel(args.model)
-            sr.setModel("edsr", 4)
-        x0, y0, x1, y1 = PANELS[name]
-        print("upscaling", name, flush=True)
-        cv2.imwrite(path, sr.upsample(sheet[y0:y1, x0:x1]))
-    return cv2.imread(path)
+def navy(rgb):
+    """The dark-blue suit (used to find frames and to measure the body)."""
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_BGR2HSV)
+    blue = (hsv[..., 0] > 95) & (hsv[..., 0] < 140)   # skin shadows are dark too, but orange
+    return blue & (hsv[..., 1] > 80) & (hsv[..., 2] < 175)
 
 
-def frames_of(name):
-    U = upscaled(name)
-    if name == "jump":
-        U[:110, :400] = U[-5:, -5:].reshape(-1, 3).mean(0)  # hide the "Jump" title pill
-    Ui = U.astype(np.int16)
-    lab = cv2.cvtColor(U, cv2.COLOR_BGR2LAB)
-    hsv = cv2.cvtColor(U, cv2.COLOR_BGR2HSV)
+def suit(rgb):
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_BGR2HSV)
+    return (hsv[..., 0] > 100) & (hsv[..., 0] < 135) & (hsv[..., 1] > 70)
+
+
+def body_size(mask):
+    """(height, head width) of the suit - head width = widest row in the top 55%."""
+    ys, _ = np.where(mask)
+    top, h = ys.min(), ys.max() - ys.min() + 1
+    return h, max(mask[y].sum() for y in range(top, top + int(h * 0.55)))
+
+
+def frames_of(cfg):
+    img = cv2.imread(os.path.join(HERE, "source", "hd", cfg["sheet"]))
+    x0, y0, x1, y1 = cfg.get("crop", (0, 0, img.shape[1], img.shape[0]))
+    U = img[y0:y1, x0:x1].copy()
+    for hx0, hy0, hx1, hy1 in cfg.get("hide", []):   # paint over title labels
+        U[hy0:hy1, hx0:hx1] = 255
     H, W = U.shape[:2]
-    bg = np.median(np.concatenate([Ui[-8:].reshape(-1, 3), Ui[:, -8:].reshape(-1, 3)]), axis=0)
-    diff = np.abs(Ui - bg).sum(2)  # how different each pixel is from the background
+    bgc = np.median(np.concatenate([U[:4].reshape(-1, 3), U[-4:].reshape(-1, 3)]), axis=0)
+    diff = np.abs(U.astype(np.int16) - bgc).sum(2)
 
-    # Each frame = one big dark-blue blob (the suit).
-    body = (((hsv[..., 1] > 80) & (hsv[..., 2] < 175)) * 255).astype(np.uint8)
-    body = cv2.morphologyEx(body, cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8))
+    # Each frame = one big dark-blue blob.
+    body = (navy(U) * 255).astype(np.uint8)
+    body = cv2.morphologyEx(body, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
     n, labels, st, _ = cv2.connectedComponentsWithStats(body)
     comps = sorted([i for i in range(1, n) if st[i, 4] > 0.25 * st[1:, 4].max()], key=lambda i: st[i, 0])
-    median_w = np.median([st[i, 2] for i in comps])
 
     out = []
     for k, i in enumerate(comps):
         bx, by, bw, bh, _ = st[i]
-        if bw > 1.55 * median_w:
-            continue  # two overlapping frames merged into one blob - skip
         left = 0 if k == 0 else (st[comps[k - 1], 0] + st[comps[k - 1], 2] + bx) // 2
         right = W if k == len(comps) - 1 else (bx + bw + st[comps[k + 1], 0]) // 2
         sl, sd, sb = U[:, left:right], diff[:, left:right], labels[:, left:right] == i
         h, w = sd.shape
 
-        # GrabCut hints (see 1_cutout.py): suit = surely character, background-coloured = surely not.
-        m = np.full((h, w), cv2.GC_PR_BGD, np.uint8)
-        m[sd > 60] = cv2.GC_PR_FGD
-        m[cv2.erode(sb.astype(np.uint8), np.ones((9, 9), np.uint8)) > 0] = cv2.GC_FGD
-        m[sd < 18] = cv2.GC_BGD
+        # Background = what a paint-bucket fill from the edges reaches through
+        # near-white pixels. Everything else is the character (or an effect).
+        flood = np.zeros((h + 2, w + 2), np.uint8)
+        blur = cv2.GaussianBlur(sl, (3, 3), 0)
+        for yy, xx in [(0, 0), (0, w - 1), (h - 1, 0), (h - 1, w - 1), (0, w // 2), (h - 1, w // 2), (h // 2, 0), (h // 2, w - 1)]:
+            if sd[yy, xx] < 30 and flood[yy + 1, xx + 1] == 0:
+                cv2.floodFill(blur.copy(), flood, (xx, yy), 0, (4, 4, 4), (4, 4, 4), 4 | cv2.FLOODFILL_MASK_ONLY | (255 << 8))
+        fg = ((flood[1:-1, 1:-1] == 0) & (sd > 12)).astype(np.uint8) * 255
+        # The cream face is close to white: in side views it touches the
+        # background, so warm (yellowish) pixels next to the body are character.
         near = np.zeros((h, w), np.uint8)
         cnts, _ = cv2.findContours(sb.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         cv2.fillPoly(near, [cv2.convexHull(np.vstack(cnts))], 255)
-        near = cv2.dilate(near, np.ones((41, 41), np.uint8))
-        # The cream face is close to the background colour: warm pixels next to the body are character.
-        sl_lab = lab[:, left:right]
-        cream = (sl_lab[..., 2] > 136) & (sl_lab[..., 0] > 150) & (near > 0)
-        cream = cv2.morphologyEx(cream.astype(np.uint8), cv2.MORPH_OPEN, np.ones((5, 5), np.uint8)) > 0
-        m[cream] = cv2.GC_FGD
-        m[:3] = m[-3:] = cv2.GC_BGD
-        m[:, :3] = m[:, -3:] = cv2.GC_BGD
-        try:
-            cv2.grabCut(sl, m, None, np.zeros((1, 65)), np.zeros((1, 65)), 4, cv2.GC_INIT_WITH_MASK)
-        except cv2.error:
-            pass
-        fg = np.where((m == 1) | (m == 3), 255, 0).astype(np.uint8)
+        lab = cv2.cvtColor(sl, cv2.COLOR_BGR2LAB)
+        cream = (lab[..., 2] > 134) & (lab[..., 0] > 150) & (near > 0)
+        cream = cv2.morphologyEx(cream.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8)) > 0
+        fg[cream] = 255
+        fg = cv2.morphologyEx(fg, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
-        # Background = what a paint-bucket fill from the frame corners reaches through smooth
-        # light colours. Anything it can't reach stays (catches side-view faces).
-        flood = np.zeros((h + 2, w + 2), np.uint8)
-        blur = cv2.GaussianBlur(sl, (5, 5), 0)
-        for yy, xx in [(0, 0), (0, w - 1), (h - 1, 0), (h - 1, w - 1), (0, w // 2), (h - 1, w // 2)]:
-            if sd[yy, xx] < 40 and flood[yy + 1, xx + 1] == 0:
-                cv2.floodFill(blur.copy(), flood, (xx, yy), 0, (3, 3, 3), (3, 3, 3), 4 | cv2.FLOODFILL_MASK_ONLY | (255 << 8))
-        fg[(flood[1:-1, 1:-1] == 0) & (cv2.dilate(near, np.ones((21, 21), np.uint8)) > 0)] = 255
-
-        # Keep the character plus small effects (Zz, !, notes) - drop bits of neighbouring frames.
+        # Keep the character plus effects (Zz, tears, sparkles) - not bits of neighbours.
         nn, ll, ss, _ = cv2.connectedComponentsWithStats(fg)
         votes = np.bincount(ll[sb].ravel(), minlength=nn)
         votes[0] = 0
@@ -147,30 +129,42 @@ def frames_of(name):
         keep = np.zeros_like(fg)
         for j in range(1, nn):
             x, y, ww, hh, a = ss[j]
-            if j != main and (a < 60 or x <= 2 or x + ww >= w - 2 or y <= 2 or (hh < 40 and ww > 4 * hh)):
+            if j != main and (a < 40 or x <= 1 or x + ww >= w - 1):
                 continue
             keep[ll == j] = 255
         ff = np.pad(keep, 1)
         cv2.floodFill(ff, np.zeros((h + 4, w + 4), np.uint8), (0, 0), 255)
         keep |= 255 - ff[1:-1, 1:-1]  # fill holes
-        keep[cream] = 255
+        # drop the soft grey ground shadow under the feet
         feet = by + bh
-        keep[(np.arange(h)[:, None] > feet - 6) & (sd < 90)] = 0  # drop the ground shadow
-        out.append(dict(rgb=sl, alpha=cv2.GaussianBlur(keep, (5, 5), 0), cx=bx + bw / 2 - left, foot=feet, bh=int(ss[main, 3])))
-    return [f for idx, f in enumerate(out) if idx not in DROP.get(name, [])]
+        hsv = cv2.cvtColor(sl, cv2.COLOR_BGR2HSV)
+        keep[(np.arange(h)[:, None] > feet - 4) & (hsv[..., 1] < 60) & (sd < 70)] = 0
+        alpha = cv2.GaussianBlur(keep, (3, 3), 0).astype(np.float32)
+
+        if cfg.get("no_hand"):
+            # Remove the drawn hand: the visitor's mouse cursor is the hand.
+            hand = (hsv[..., 0] < 25) & (hsv[..., 1] > 30) & (hsv[..., 2] > 120)
+            hand[by + 40:] = False          # only up at the fin, never the face
+            hand = cv2.dilate(hand.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+            alpha[hand] = 0
+            alpha[:max(by - 2, 0)] = 0      # anything above the fin tip
+
+        # size = the character's outline, from the top of the suit down
+        # (leaves out effects above the head and the hand in the drag frames)
+        outline = (cv2.dilate((keep > 0).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0) & (ll == main)
+        ff2 = np.pad(outline.astype(np.uint8) * 255, 1)
+        cv2.floodFill(ff2, np.zeros((h + 4, w + 4), np.uint8), (0, 0), 255)
+        outline = outline | (ff2[1:-1, 1:-1] == 0)
+        outline[:by] = False
+        out.append(dict(rgb=sl, alpha=alpha.clip(0, 255).astype(np.uint8), cx=bx + bw / 2 - left,
+                        foot=feet, size=body_size(outline)))
+    return [f for idx, f in enumerate(out) if idx not in cfg.get("skip", [])]
 
 
-frames = {name: frames_of(name) for name in PANELS}
-ref_h = {r: np.median([f["bh"] for f in frames[r]]) for r in set(REF.values())}
-
+frames = {name: frames_of(cfg) for name, cfg in ANIMS.items()}
 
 # Colour matching: make the suit's average colour and contrast (in Lab colour
 # space) equal to the original artwork's suit.
-def suit(rgb):
-    hsv = cv2.cvtColor(rgb, cv2.COLOR_BGR2HSV)
-    return (hsv[..., 0] > 100) & (hsv[..., 0] < 135) & (hsv[..., 1] > 70)
-
-
 orig = cv2.imread(args.cutout, cv2.IMREAD_UNCHANGED)
 o_lab = cv2.cvtColor(orig[..., :3], cv2.COLOR_BGR2LAB).reshape(-1, 3)[(suit(orig[..., :3]) & (orig[..., 3] > 200)).ravel()].astype(float)
 s_lab = np.concatenate([
@@ -179,76 +173,54 @@ s_lab = np.concatenate([
 ]).astype(float)
 o_mean, o_std, s_mean, s_std = o_lab.mean(0), o_lab.std(0), s_lab.mean(0), s_lab.std(0)
 
-def main_body(alpha):
-    """The biggest blob in a frame (the character without its Zz/!/notes)."""
-    n, labels, st, _ = cv2.connectedComponentsWithStats((alpha > 128).astype(np.uint8))
-    return labels == 1 + np.argmax(st[1:, 4]) if n > 1 else alpha > 128
+# Size matching: the original character, measured at its on-screen size.
+o_h, o_head = body_size(orig[..., 3] > 128)
+o_scale = TARGET_W / orig.shape[1]
+ORIG_H, ORIG_HEAD = o_h * o_scale, o_head * o_scale
 
-
-def body_size(mask):
-    """(height, head width) - head width = widest row in the top 55% of the body."""
-    ys, _ = np.where(mask)
-    top, h = ys.min(), ys.max() - ys.min() + 1
-    return h, max(mask[y].sum() for y in range(top, top + int(h * 0.55)))
-
-
-# The original character, measured at the size it's shown on screen: the
-# mascot box is 140px wide, so the original picture is scaled to that width.
-o_h, o_w = body_size(main_body(orig[..., 3]))
-o_scale = 140 * args.hd / orig.shape[1]
-ORIG_H, ORIG_HEAD = o_h * o_scale, o_w * o_scale
-
-
-def build_strip(name, scale):
+table = {}
+for name, cfg in ANIMS.items():
     fl = frames[name]
-    strip = np.zeros((CH, CW * len(fl), 4), np.uint8)
+    ref = [fl[i]["size"] for i in cfg.get("measure", range(len(fl))) if i < len(fl)]
+    h_med, head_med = np.median([r[0] for r in ref]), np.median([r[1] for r in ref])
+    f_h, f_head = ORIG_H / h_med, ORIG_HEAD / head_med
+    scale = f_h if cfg.get("fit") == "side" else (f_h * f_head) ** 0.5
+
     foot = max(f["foot"] for f in fl)
-    sizes = []
-    for c, f in enumerate(fl):
+    cells, top = [], foot
+    for f in fl:
         lab = cv2.cvtColor(f["rgb"], cv2.COLOR_BGR2LAB).astype(float)
         weight = cv2.GaussianBlur(suit(f["rgb"]).astype(np.float32), (7, 7), 0)[..., None]
         lab = lab * (1 - weight) + ((lab - s_mean) / s_std * o_std + o_mean) * weight
         rgb = cv2.cvtColor(np.clip(lab, 0, 255).astype(np.uint8), cv2.COLOR_LAB2BGR)
+        ys, _ = np.where(f["alpha"] > 10)
+        top = min(top, ys.min())
+        cells.append((rgb, f))
+    # strip height: tall enough for the tallest frame (+ a little room)
+    CH = max(round(300 * args.hd), int((foot - top) * scale) + 8)
+    strip = np.zeros((CH, CW * len(fl), 4), np.uint8)
+    for c, (rgb, f) in enumerate(cells):
         h, w = f["alpha"].shape
         nw, nh = round(w * scale), round(h * scale)
         interp = cv2.INTER_AREA if scale < 1 else cv2.INTER_CUBIC
-        rgb = cv2.resize(rgb, (nw, nh), interpolation=interp)
+        rgb_s = cv2.resize(rgb, (nw, nh), interpolation=interp)
         al = cv2.resize(f["alpha"], (nw, nh), interpolation=interp)
-        sizes.append(body_size(main_body(al)))
-        # Place it: feet on the same line, body centred.
-        dy, dx = (CH - FOOT) - round(foot * scale), round(CW / 2 - f["cx"] * scale)
+        if cfg.get("align") == "tip":
+            # fin tip = highest point of the suit; put it at (centre, TIP_Y)
+            ys, xs = np.where(navy(rgb_s) & (al > 128))
+            tip_y, tip_x = ys.min(), xs[ys == ys.min()].mean()
+            dy, dx = round(TIP_Y - tip_y), round(CW / 2 - tip_x)
+        else:
+            # feet on the bottom edge, body centred
+            dy, dx = CH - round(foot * scale), round(CW / 2 - f["cx"] * scale)
         ys0, ys1, xs0, xs1 = max(0, -dy), min(nh, CH - dy), max(0, -dx), min(nw, CW - dx)
         cell = np.zeros((CH, CW, 4), np.uint8)
-        cell[ys0 + dy:ys1 + dy, xs0 + dx:xs1 + dx] = np.dstack([rgb, al])[ys0:ys1, xs0:xs1]
+        cell[ys0 + dy:ys1 + dy, xs0 + dx:xs1 + dx] = np.dstack([rgb_s, al])[ys0:ys1, xs0:xs1]
         strip[:, c * CW:(c + 1) * CW] = cell
-    return strip, np.median([s[0] for s in sizes]), np.median([s[1] for s in sizes])
-
-
-# Make every animation the same size as the original, so switching between
-# them looks like one body instead of a sudden resize:
-#   - front-facing poses: match height AND head width (halfway between, since
-#     some rows of the sheet are drawn chubbier/shorter than the original)
-#   - side views: match height (a side-view head is naturally narrower)
-#   - lying down: no standing height to compare, so use the scale of a
-#     standing animation from the same row of the sheet
-SIDE = {"walk", "run"}
-LYING = {"fall": "jump", "roll": "jump", "sleep": "happy"}
-fix = {}
-for name in [n for n in PANELS if n not in LYING]:
-    base = TARGET / ref_h[REF[name]] * TUNE.get(REF[name], 1)
-    _, h, head = build_strip(name, base)
-    f_h, f_head = ORIG_H / h, ORIG_HEAD / head
-    fix[name] = f_h if name in SIDE else (f_h * f_head) ** 0.5
-for name, like in LYING.items():
-    fix[name] = fix[like]
-
-counts = {}
-for name in PANELS:
-    scale = TARGET / ref_h[REF[name]] * TUNE.get(REF[name], 1) * fix[name]
-    strip, h, head = build_strip(name, scale)
     Image.fromarray(cv2.cvtColor(strip, cv2.COLOR_BGRA2RGBA)).save(
-        os.path.join(args.outdir, name + ".webp"), quality=80, method=6)
-    counts[name] = len(frames[name])
-    print(f"{name:10} height {h / args.hd:5.0f}  head {head / args.hd:5.0f}   (original {ORIG_H / args.hd:.0f} / {ORIG_HEAD / args.hd:.0f})")
+        os.path.join(args.outdir, name + ".webp"), quality=82, method=6)
+    table[name] = dict(frames=len(fl), h=round(CH / args.hd))
+    print(f"{name:8} {len(fl)} frames  height {h_med * scale / args.hd:5.0f}  head {head_med * scale / args.hd:5.0f}"
+          f"   (original {ORIG_H / args.hd:.0f} / {ORIG_HEAD / args.hd:.0f})")
 
-print("frames per animation:", json.dumps(counts))
+print("ANIMS =", json.dumps(table))
