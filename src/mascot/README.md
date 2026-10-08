@@ -207,7 +207,9 @@ For every animation in `PANELS`:
 2. **Find the frames.** Each dark-blue blob is one character.
 3. **Cut each frame out**: GrabCut again, plus a "paint-bucket" fill from the
    corners to catch faces that are close to the background colour.
-4. **Resize** so the character is the same size in every animation.
+4. **Resize** so the character matches the original picture's height and
+   head size (measured automatically). Then switching between the normal pose
+   and an animation looks like one body, not a sudden resize.
 5. **Colour-match** the suit to the original picture. It shifts the average
    colour and contrast in Lab colour space so the sprites blend in.
 6. **Line up** the frames with their feet on the same line, and save one strip.
