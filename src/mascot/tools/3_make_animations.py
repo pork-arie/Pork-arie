@@ -31,6 +31,7 @@ ap.add_argument("cutout", help="the original character from step 1, used for col
 ap.add_argument("outdir")
 ap.add_argument("--model", default="EDSR_x4.pb")
 ap.add_argument("--cache", default="out/upscaled")
+ap.add_argument("--hd", type=float, default=2, help="pixel density: 2 = sharp on retina/phone screens")
 args = ap.parse_args()
 os.makedirs(args.outdir, exist_ok=True)
 os.makedirs(args.cache, exist_ok=True)
@@ -54,8 +55,11 @@ TUNE = {"happy": 0.87, "angry": 0.8}
 # Frames that didn't cut out cleanly (side-view face too close to the background).
 DROP = {"walk": [2, 5], "look": [4, 5]}
 
-TARGET = 180                 # character height in px when the mascot is 140px wide
-CW, CH, FOOT = 200, 300, 8   # frame size, and gap under the feet
+# Sizes at 1x (mascot 140px wide). --hd 2 saves everything twice as big so it
+# stays sharp on high-density screens; the CSS scales it back down.
+TARGET = round(180 * args.hd)            # character height
+CW, CH = round(200 * args.hd), round(300 * args.hd)   # frame size
+FOOT = round(8 * args.hd)                # gap under the feet
 
 sheet = cv2.imread(args.sheet)
 sr = None
@@ -175,11 +179,31 @@ s_lab = np.concatenate([
 ]).astype(float)
 o_mean, o_std, s_mean, s_std = o_lab.mean(0), o_lab.std(0), s_lab.mean(0), s_lab.std(0)
 
-counts = {}
-for name, fl in frames.items():
-    scale = TARGET / ref_h[REF[name]] * TUNE.get(REF[name], 1)
+def main_body(alpha):
+    """The biggest blob in a frame (the character without its Zz/!/notes)."""
+    n, labels, st, _ = cv2.connectedComponentsWithStats((alpha > 128).astype(np.uint8))
+    return labels == 1 + np.argmax(st[1:, 4]) if n > 1 else alpha > 128
+
+
+def body_size(mask):
+    """(height, head width) - head width = widest row in the top 55% of the body."""
+    ys, _ = np.where(mask)
+    top, h = ys.min(), ys.max() - ys.min() + 1
+    return h, max(mask[y].sum() for y in range(top, top + int(h * 0.55)))
+
+
+# The original character, measured at the size it's shown on screen: the
+# mascot box is 140px wide, so the original picture is scaled to that width.
+o_h, o_w = body_size(main_body(orig[..., 3]))
+o_scale = 140 * args.hd / orig.shape[1]
+ORIG_H, ORIG_HEAD = o_h * o_scale, o_w * o_scale
+
+
+def build_strip(name, scale):
+    fl = frames[name]
     strip = np.zeros((CH, CW * len(fl), 4), np.uint8)
     foot = max(f["foot"] for f in fl)
+    sizes = []
     for c, f in enumerate(fl):
         lab = cv2.cvtColor(f["rgb"], cv2.COLOR_BGR2LAB).astype(float)
         weight = cv2.GaussianBlur(suit(f["rgb"]).astype(np.float32), (7, 7), 0)[..., None]
@@ -190,14 +214,41 @@ for name, fl in frames.items():
         interp = cv2.INTER_AREA if scale < 1 else cv2.INTER_CUBIC
         rgb = cv2.resize(rgb, (nw, nh), interpolation=interp)
         al = cv2.resize(f["alpha"], (nw, nh), interpolation=interp)
+        sizes.append(body_size(main_body(al)))
         # Place it: feet on the same line, body centred.
         dy, dx = (CH - FOOT) - round(foot * scale), round(CW / 2 - f["cx"] * scale)
         ys0, ys1, xs0, xs1 = max(0, -dy), min(nh, CH - dy), max(0, -dx), min(nw, CW - dx)
         cell = np.zeros((CH, CW, 4), np.uint8)
         cell[ys0 + dy:ys1 + dy, xs0 + dx:xs1 + dx] = np.dstack([rgb, al])[ys0:ys1, xs0:xs1]
         strip[:, c * CW:(c + 1) * CW] = cell
+    return strip, np.median([s[0] for s in sizes]), np.median([s[1] for s in sizes])
+
+
+# Make every animation the same size as the original, so switching between
+# them looks like one body instead of a sudden resize:
+#   - front-facing poses: match height AND head width (halfway between, since
+#     some rows of the sheet are drawn chubbier/shorter than the original)
+#   - side views: match height (a side-view head is naturally narrower)
+#   - lying down: no standing height to compare, so use the scale of a
+#     standing animation from the same row of the sheet
+SIDE = {"walk", "run"}
+LYING = {"fall": "jump", "roll": "jump", "sleep": "happy"}
+fix = {}
+for name in [n for n in PANELS if n not in LYING]:
+    base = TARGET / ref_h[REF[name]] * TUNE.get(REF[name], 1)
+    _, h, head = build_strip(name, base)
+    f_h, f_head = ORIG_H / h, ORIG_HEAD / head
+    fix[name] = f_h if name in SIDE else (f_h * f_head) ** 0.5
+for name, like in LYING.items():
+    fix[name] = fix[like]
+
+counts = {}
+for name in PANELS:
+    scale = TARGET / ref_h[REF[name]] * TUNE.get(REF[name], 1) * fix[name]
+    strip, h, head = build_strip(name, scale)
     Image.fromarray(cv2.cvtColor(strip, cv2.COLOR_BGRA2RGBA)).save(
-        os.path.join(args.outdir, name + ".webp"), quality=76, method=6)
-    counts[name] = len(fl)
+        os.path.join(args.outdir, name + ".webp"), quality=80, method=6)
+    counts[name] = len(frames[name])
+    print(f"{name:10} height {h / args.hd:5.0f}  head {head / args.hd:5.0f}   (original {ORIG_H / args.hd:.0f} / {ORIG_HEAD / args.hd:.0f})")
 
 print("frames per animation:", json.dumps(counts))

@@ -55,13 +55,15 @@
   background-repeat: no-repeat;
   background-position-y: 0;
   pointer-events: none;
-  transform: translateX(-50%);
+  /* frames leave 8px (of 300) under the feet; shift down so the feet sit
+     exactly where the original artwork's feet are */
+  transform: translate(-50%, 2.667%);
   filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
   animation: m-blend-in 0.18s ease-out;
 }
 
 .m-sprite.is-flipped {
-  transform: translateX(-50%) scaleX(-1);
+  transform: translate(-50%, 2.667%) scaleX(-1);
 }
 
 /* soft cross-fade whenever the artwork switches */
