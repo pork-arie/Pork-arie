@@ -1,0 +1,299 @@
+.mascot {
+  position: fixed;
+  z-index: 9999;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.mascot:focus-visible .mascot-svg,
+.mascot:focus-visible .m-sprite {
+  filter: drop-shadow(0 0 8px #8fa2ee);
+}
+
+.mascot.is-dragging,
+.mascot.is-flying {
+  cursor: grabbing;
+}
+
+/* layers: act (reactions) > bob (idle) > tilt (cursor lean) > artwork */
+.mascot-act,
+.mascot-bob,
+.mascot-tilt {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+.mascot-bob {
+  animation: mascot-bob 2.6s ease-in-out infinite;
+}
+
+.mascot-tilt {
+  transform-origin: 50% 85%;
+  transition: transform 0.25s ease-out;
+}
+
+.mascot.is-sprite .mascot-bob {
+  animation: none;
+}
+
+.mascot.is-sprite .mascot-tilt {
+  transform: none !important;
+}
+
+/* ---- sprite animations ---- */
+.m-sprite {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: calc(100% * 200 / 140);
+  background-repeat: no-repeat;
+  background-position-y: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
+  animation: m-blend-in 0.18s ease-out;
+}
+
+.m-sprite.is-flipped {
+  transform: translateX(-50%) scaleX(-1);
+}
+
+/* soft cross-fade whenever the artwork switches */
+@keyframes m-blend-in {
+  from { opacity: 0.55; filter: blur(1px) drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25)); }
+  to { opacity: 1; filter: blur(0) drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25)); }
+}
+
+/* ---- layered 3D artwork ---- */
+.mascot-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
+  transform-origin: 50% 100%;
+  transition: transform 0.2s ease;
+  animation: m-blend-in 0.18s ease-out;
+}
+
+.mascot:hover .mascot-svg {
+  transform: scale(1.04) translateY(-3px);
+}
+
+.mascot-svg g {
+  transform-box: view-box;
+}
+
+.m-track {
+  transition: transform 0.15s ease-out;
+}
+
+.m-eye {
+  transform-box: fill-box !important;
+  transform-origin: center;
+  transition: transform 0.12s ease, opacity 0.1s;
+}
+
+.mascot.is-blinking .m-eye {
+  transform: scaleY(0.08);
+}
+
+.mascot.mood-happy .m-eye {
+  opacity: 0;
+}
+
+.m-line path {
+  stroke: #1b2452;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.m-tail {
+  transform-origin: 160px 715px;
+  animation: m-wag 1.6s ease-in-out infinite;
+}
+
+.mascot.mood-happy .m-tail {
+  animation-duration: 0.4s;
+}
+
+.m-paw {
+  transform-origin: 505px 650px;
+}
+
+.mascot.mood-happy .m-paw {
+  animation: m-paw-bounce 0.35s ease-in-out infinite;
+}
+
+@keyframes m-wag {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(9deg); }
+}
+
+@keyframes m-paw-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---- body reactions ---- */
+.mascot.is-dragging .mascot-act {
+  animation: mascot-wiggle 0.4s ease-in-out infinite;
+}
+
+
+.act-shake { animation: mascot-shake 0.2s ease-in-out 6; }
+.act-bonk { animation: mascot-bonk 0.35s ease-out; transform-origin: 50% 50%; }
+.act-hold-down { animation: mascot-hold-down 0.7s ease-out; }
+.act-hold-up { animation: mascot-hold-up 0.7s ease-out; }
+
+.mascot-shadow {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: -4px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(20, 30, 90, 0.18);
+  filter: blur(2px);
+  animation: mascot-shadow 2.6s ease-in-out infinite;
+  transition: opacity 0.2s;
+}
+
+.mascot.is-dragging .mascot-shadow,
+.mascot.is-flying .mascot-shadow {
+  opacity: 0;
+}
+
+/* ---- speech bubble ---- */
+.mascot-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #fff;
+  color: #25348a;
+  font: 600 14px/1.2 system-ui, sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(20, 30, 90, 0.2);
+  pointer-events: none;
+  animation: mascot-pop 0.25s ease-out;
+}
+
+.mascot-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #fff;
+}
+
+.mascot.bubble-below .mascot-bubble {
+  bottom: auto;
+  top: 100%;
+  margin: 8px 0 0;
+}
+
+.mascot.bubble-below .mascot-bubble::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #fff;
+}
+
+.mascot.is-sleeping .mascot-bubble {
+  bottom: 70%;
+}
+
+/* ---- floating emoji (hearts, sparkles, zzz...) ---- */
+.mascot-particle {
+  position: absolute;
+  top: 15%;
+  z-index: 1;
+  font-size: 22px;
+  opacity: 0;
+  pointer-events: none;
+  animation: mascot-float 1.4s ease-out forwards;
+}
+
+.mascot.is-sleeping .mascot-particle {
+  top: 45%;
+  animation-duration: 2.2s;
+}
+
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-6px) scale(0.98, 1.02); }
+}
+
+@keyframes mascot-wiggle {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+
+@keyframes mascot-shadow {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.85); }
+}
+
+@keyframes mascot-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-6px) rotate(-6deg); }
+  75% { transform: translateX(6px) rotate(6deg); }
+}
+
+@keyframes mascot-bonk {
+  0% { transform: scale(1, 1); }
+  30% { transform: scale(0.75, 1.2); }
+  100% { transform: scale(1, 1); }
+}
+
+@keyframes mascot-hold-down {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-14px) scale(0.95, 1.08); }
+  60% { transform: translateY(4px) scale(1.08, 0.94); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes mascot-hold-up {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(10px) scale(1.1, 0.9); }
+  60% { transform: translateY(-6px) scale(0.96, 1.05); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes mascot-pop {
+  from { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+@keyframes mascot-float {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 0), -70px) scale(1.3); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot *,
+  .mascot *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .mascot-particle {
+    display: none;
+  }
+}

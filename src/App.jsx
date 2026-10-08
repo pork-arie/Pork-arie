@@ -18,6 +18,7 @@ import Featured from './pages/featured'
 import Detail from './pages/detail'
 import Process from './pages/process'
 import Testimonials from './pages/testimonials'
+import Mascot from './mascot'
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
           <Route path='/detail/:id' element={<Detail/>}/>
         </Routes>
       </BrowserRouter>
+      <Mascot size={window.innerWidth < 640 ? 100 : 140} />
       
     </>
   );
