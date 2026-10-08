@@ -18,7 +18,7 @@ import Featured from './pages/featured'
 import Detail from './pages/detail'
 import Process from './pages/process'
 import Testimonials from './pages/testimonials'
-import Mascot from './components/Mascot'
+import Mascot from './mascot'
 
 
 function App() {
