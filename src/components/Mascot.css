@@ -51,15 +51,23 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: 128%;
+  width: calc(100% * 200 / 140);
   background-repeat: no-repeat;
+  background-position-y: 0;
   pointer-events: none;
   transform: translateX(-50%);
-  filter: drop-shadow(0 6px 10px rgba(20, 30, 90, 0.2));
+  filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
+  animation: m-blend-in 0.18s ease-out;
 }
 
 .m-sprite.is-flipped {
   transform: translateX(-50%) scaleX(-1);
+}
+
+/* soft cross-fade whenever the artwork switches */
+@keyframes m-blend-in {
+  from { opacity: 0.2; filter: blur(1.5px) drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25)); }
+  to { opacity: 1; filter: blur(0) drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25)); }
 }
 
 /* ---- layered 3D artwork ---- */
@@ -71,6 +79,7 @@
   filter: drop-shadow(0 8px 12px rgba(20, 30, 90, 0.25));
   transform-origin: 50% 100%;
   transition: transform 0.2s ease;
+  animation: m-blend-in 0.18s ease-out;
 }
 
 .mascot:hover .mascot-svg {
@@ -138,14 +147,8 @@
   animation: mascot-wiggle 0.4s ease-in-out infinite;
 }
 
-.mascot.is-flying .mascot-act {
-  transform-origin: 50% 50%;
-  animation: mascot-tumble 0.6s linear infinite;
-}
 
 .act-shake { animation: mascot-shake 0.2s ease-in-out 6; }
-.act-squish { animation: mascot-squish 0.9s ease-out; }
-.act-purr { animation: mascot-purr 0.14s linear 10; }
 .act-bonk { animation: mascot-bonk 0.35s ease-out; transform-origin: 50% 50%; }
 .act-hold-down { animation: mascot-hold-down 0.7s ease-out; }
 .act-hold-up { animation: mascot-hold-up 0.7s ease-out; }
@@ -240,9 +243,6 @@
   50% { transform: rotate(5deg); }
 }
 
-@keyframes mascot-tumble {
-  to { transform: rotate(360deg); }
-}
 
 @keyframes mascot-shadow {
   0%, 100% { transform: scaleX(1); }
@@ -253,20 +253,6 @@
   0%, 100% { transform: translateX(0) rotate(0); }
   25% { transform: translateX(-6px) rotate(-6deg); }
   75% { transform: translateX(6px) rotate(6deg); }
-}
-
-@keyframes mascot-squish {
-  0% { transform: scale(1, 1); }
-  20% { transform: scale(1.3, 0.7); }
-  40% { transform: scale(0.85, 1.2); }
-  60% { transform: scale(1.1, 0.92); }
-  80% { transform: scale(0.97, 1.03); }
-  100% { transform: scale(1, 1); }
-}
-
-@keyframes mascot-purr {
-  0%, 100% { transform: translateX(0) scale(1.03, 0.97); }
-  50% { transform: translateX(1.5px) scale(1.03, 0.97); }
 }
 
 @keyframes mascot-bonk {

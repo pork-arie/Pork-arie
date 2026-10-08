@@ -7,21 +7,34 @@ import eyeRImg from "../assets/mascot/eyeR.webp";
 import pupilLImg from "../assets/mascot/pupilL.webp";
 import pupilRImg from "../assets/mascot/pupilR.webp";
 import mouthImg from "../assets/mascot/mouth.webp";
-import spritesImg from "../assets/mascot/sprites.webp";
+import walkImg from "../assets/mascot/anim/walk.webp";
+import runImg from "../assets/mascot/anim/run.webp";
+import jumpImg from "../assets/mascot/anim/jump.webp";
+import fallImg from "../assets/mascot/anim/fall.webp";
+import rollImg from "../assets/mascot/anim/roll.webp";
+import waveImg from "../assets/mascot/anim/wave.webp";
+import danceImg from "../assets/mascot/anim/dance.webp";
+import lookImg from "../assets/mascot/anim/look.webp";
+import sleepImg from "../assets/mascot/anim/sleep.webp";
+import happyImg from "../assets/mascot/anim/happy.webp";
+import sadImg from "../assets/mascot/anim/sad.webp";
+import angryImg from "../assets/mascot/anim/angry.webp";
+import surprisedImg from "../assets/mascot/anim/surprised.webp";
+import celebrateImg from "../assets/mascot/anim/celebrate.webp";
 import "./Mascot.css";
 
 // "Cat in a Fish Suit" mascot.
 //
 // Normal / happy: the original 3D artwork, split into layers so the eyes
 // follow the cursor and blink, the tail wags and the paw bounces.
-// Everything else plays frame-by-frame sprite animations (walk, run, jump,
-// fall, wave, dance, look around, sleep, get up, celebrate, sad, angry,
-// surprised).
+// Everything else plays frame-by-frame 3D sprite animations (walk, run, jump,
+// fall, roll, wave, dance, look around, sleep, wake, happy, celebrate, sad,
+// angry, surprised), colour-matched to the original and cross-faded.
 //
 // Interactions:
 // - Hover: happy. Click: random reaction. Poke 5x fast: angry.
 // - Rub the cursor back and forth over it: happy purr.
-// - Drag it anywhere; throw it and it bounces off the edges, then falls flat.
+// - Drag it anywhere; throw it and it rolls through the air, then falls flat.
 // - Cursor leaves the page: sad. Comes back far away: runs to it.
 // - Fast scroll: surprised. Idle: looks around, wanders, then falls asleep.
 // Position is remembered.
@@ -46,22 +59,24 @@ const SCLERA = {
   R: { cx: 505.6, cy: 148.8, rx: 59, ry: 75, angle: 124 },
 };
 
-// Sprite sheet: one animation per row, 6 frames each, 112x166 cells.
-const SHEET = { cols: 6, rows: 14, cellW: 112, cellH: 166 };
+// Sprite animations: one horizontal strip of 200x300 frames per animation.
+const CELL = { w: 200, h: 300 }; // frame size at size=140
 const ANIMS = {
-  walk: { row: 1, fps: 8 },
-  run: { row: 2, fps: 12 },
-  jump: { row: 3, fps: 9, once: true },
-  fall: { row: 4, fps: 8, once: true },
-  wave: { row: 5, fps: 8 },
-  dance: { row: 6, fps: 8 },
-  look: { row: 7, fps: 4, once: true },
-  sleep: { row: 8, fps: 5, once: true },
-  getup: { row: 9, fps: 7, once: true },
-  celebrate: { row: 10, fps: 8 },
-  sad: { row: 11, fps: 5 },
-  angry: { row: 12, fps: 8 },
-  surprised: { row: 13, fps: 8 },
+  walk: { src: walkImg, frames: 7, fps: 10 },
+  run: { src: runImg, frames: 8, fps: 14 },
+  jump: { src: jumpImg, frames: 6, fps: 10, once: true },
+  fall: { src: fallImg, frames: 5, fps: 9, once: true },
+  roll: { src: rollImg, frames: 7, fps: 14 },
+  wave: { src: waveImg, frames: 6, fps: 8 },
+  dance: { src: danceImg, frames: 7, fps: 8 },
+  look: { src: lookImg, frames: 6, fps: 4, once: true },
+  sleep: { src: sleepImg, frames: 6, fps: 5, once: true },
+  wake: { src: sleepImg, frames: 6, fps: 8, once: true, reverse: true },
+  happy: { src: happyImg, frames: 7, fps: 9 },
+  sad: { src: sadImg, frames: 7, fps: 5 },
+  angry: { src: angryImg, frames: 7, fps: 8 },
+  surprised: { src: surprisedImg, frames: 7, fps: 8 },
+  celebrate: { src: celebrateImg, frames: 7, fps: 9 },
 };
 
 const REACTIONS = [
@@ -70,7 +85,7 @@ const REACTIONS = [
   { anim: "dance", ms: 2200, fx: "🎵", say: ["♪ Blub blub ♪", "Dance with me!"] },
   { anim: "celebrate", ms: 1800, fx: "✨", say: ["Yay! ✨", "Let's build something!"] },
   { anim: "surprised", ms: 1300, say: ["Oh! You found me! 👀"] },
-  { anim: null, act: "squish", ms: 1000, fx: "💙", say: ["Boop! 💙"] },
+  { anim: "happy", ms: 1600, fx: "💙", say: ["Boop! 💙", "Hehe~"] },
 ];
 
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -99,34 +114,36 @@ const Img = ({ part, href }) => (
   <image href={href} x={P[part].x} y={P[part].y} width={P[part].w} height={P[part].h} />
 );
 
-// Plays one row of the sprite sheet frame by frame.
+// Plays one animation strip frame by frame.
 function Sprite({ anim, flip }) {
   const ref = useRef(null);
   useEffect(() => {
-    const { row, fps, once } = ANIMS[anim];
+    const { frames, fps, once, reverse } = ANIMS[anim];
     const el = ref.current;
-    let frame = 0;
+    let i = 0;
     const show = () => {
-      el.style.backgroundPosition = `${(frame / (SHEET.cols - 1)) * 100}% ${(row / (SHEET.rows - 1)) * 100}%`;
+      const f = reverse ? frames - 1 - i : i;
+      el.style.backgroundPositionX = `${(f / (frames - 1)) * 100}%`;
     };
     show();
     if (reducedMotion()) return;
     const id = setInterval(() => {
-      if (once && frame === SHEET.cols - 1) return clearInterval(id);
-      frame = (frame + 1) % SHEET.cols;
+      if (once && i === frames - 1) return clearInterval(id);
+      i = (i + 1) % frames;
       show();
     }, 1000 / fps);
     return () => clearInterval(id);
   }, [anim]);
 
+  const { src, frames } = ANIMS[anim];
   return (
     <div
       ref={ref}
-      className={`m-sprite sprite-${anim}${flip ? " is-flipped" : ""}`}
+      className={`m-sprite${flip ? " is-flipped" : ""}`}
       style={{
-        backgroundImage: `url(${spritesImg})`,
-        backgroundSize: `${SHEET.cols * 100}% ${SHEET.rows * 100}%`,
-        aspectRatio: `${SHEET.cellW} / ${SHEET.cellH}`,
+        backgroundImage: `url(${src})`,
+        backgroundSize: `${frames * 100}% 100%`,
+        aspectRatio: `${CELL.w} / ${CELL.h}`,
       }}
     />
   );
@@ -180,7 +197,7 @@ export default function Mascot({ size = 140 }) {
   // for the layered 3D artwork.
   const state =
     moving?.anim ??
-    (dragging || flying ? "surprised" : null) ??
+    (flying ? "roll" : dragging ? "surprised" : null) ??
     override ??
     (sleeping ? "sleep" : hovering ? "happy" : "neutral");
   const anim = ANIMS[state] ? state : null;
@@ -297,6 +314,16 @@ export default function Mascot({ size = 140 }) {
     }
   }, []);
 
+  // Preload the animation strips so the first play doesn't flash blank.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      Object.values(ANIMS).forEach(({ src }) => {
+        new Image().src = src;
+      });
+    }, 1500);
+    return () => clearTimeout(id);
+  }, []);
+
   // Keep it on screen when the window resizes.
   useEffect(() => {
     const onResize = () => setPos(clamp(posRef.current));
@@ -341,7 +368,7 @@ export default function Mascot({ size = 140 }) {
       if (sleepingRef.current) {
         sleepingRef.current = false;
         setSleeping(false);
-        react("getup", null, 1100, { text: "Huh?! I'm awake! 👀" });
+        react("wake", null, 900, { text: "Huh?! I'm awake! 👀" });
       }
       clearTimeout(timers.current.sleep);
       timers.current.sleep = setTimeout(() => {
@@ -499,7 +526,10 @@ export default function Mascot({ size = 140 }) {
           fx: "💫",
           count: 2,
         });
-        timers.current.getup = setTimeout(() => react("getup", null, 1000), 1400);
+        timers.current.getup = setTimeout(
+          () => react("jump", null, 900, { fx: "✨", count: 2 }),
+          1300,
+        );
         return;
       }
       raf.current = requestAnimationFrame(step);
@@ -548,7 +578,7 @@ export default function Mascot({ size = 140 }) {
       if (p.flips.length >= 5 && now > p.cooldown) {
         p.flips = [];
         p.cooldown = now + 2500;
-        react("happy", "purr", 1600, { text: "Purrr~ 💙", fx: "💙", count: 5 });
+        react("happy", null, 1800, { text: "Purrr~ 💙", fx: "💙", count: 5 });
       }
     }
     p.dir = dir;
@@ -672,7 +702,7 @@ export default function Mascot({ size = 140 }) {
         <div className="mascot-bob">
           <div className="mascot-tilt" ref={tiltRef}>
             {anim ? (
-              <Sprite anim={anim} flip={moving?.dir < 0} />
+              <Sprite key={anim} anim={anim} flip={moving?.dir < 0} />
             ) : (
               <svg
                 className="mascot-svg"
