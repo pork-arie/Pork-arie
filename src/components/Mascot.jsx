@@ -580,8 +580,11 @@ export default function Mascot({ size = 140 }) {
     if (!d) return;
     if (!d.moved) return onClick();
     setDragging(false);
-    const first = d.samples[0];
-    const last = d.samples[d.samples.length - 1];
+    // Only the motion right before release counts (pause, then let go = drop).
+    const now = performance.now();
+    const recent = d.samples.filter((s) => now - s.t < 80);
+    const first = recent[0] ?? d.samples[d.samples.length - 1];
+    const last = recent[recent.length - 1] ?? first;
     const frame = 16 / Math.max(last.t - first.t, 1);
     const vx = Math.max(-45, Math.min(45, (last.x - first.x) * frame));
     const vy = Math.max(-45, Math.min(45, (last.y - first.y) * frame));
