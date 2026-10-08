@@ -29,7 +29,7 @@ I take on freelance **web development** and **graphic design** work for startups
 
 - **Digital Marketing** — HubSpot
 - **React Development**
-![Design pioner page](<div><a href="https://cloud.layer5.io/user/42646736-6568-4bf5-b227-609a952d0753?tab=badges&badge=first-design" alt="First Design" ><img width="175px" height="252px" src="https://badges.layer5.io/assets/badges/first-design/first-design.png" alt="First Design" /></a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<sup><a href="https://badges.layer5.io">Get your own badge</a></sup></div>)
+<div><a href="https://cloud.layer5.io/user/42646736-6568-4bf5-b227-609a952d0753?tab=badges&badge=first-design" alt="First Design" ><img width="175px" height="252px" src="https://badges.layer5.io/assets/badges/first-design/first-design.png" alt="First Design" /></a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<sup><a href="https://badges.layer5.io">Get your own badge</a></sup></div>
 
 
 ---
