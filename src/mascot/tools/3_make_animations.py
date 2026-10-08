@@ -31,6 +31,7 @@ ap.add_argument("cutout", help="the original character from step 1, used for col
 ap.add_argument("outdir")
 ap.add_argument("--model", default="EDSR_x4.pb")
 ap.add_argument("--cache", default="out/upscaled")
+ap.add_argument("--hd", type=float, default=2, help="pixel density: 2 = sharp on retina/phone screens")
 args = ap.parse_args()
 os.makedirs(args.outdir, exist_ok=True)
 os.makedirs(args.cache, exist_ok=True)
@@ -54,8 +55,11 @@ TUNE = {"happy": 0.87, "angry": 0.8}
 # Frames that didn't cut out cleanly (side-view face too close to the background).
 DROP = {"walk": [2, 5], "look": [4, 5]}
 
-TARGET = 180                 # character height in px when the mascot is 140px wide
-CW, CH, FOOT = 200, 300, 8   # frame size, and gap under the feet
+# Sizes at 1x (mascot 140px wide). --hd 2 saves everything twice as big so it
+# stays sharp on high-density screens; the CSS scales it back down.
+TARGET = round(180 * args.hd)            # character height
+CW, CH = round(200 * args.hd), round(300 * args.hd)   # frame size
+FOOT = round(8 * args.hd)                # gap under the feet
 
 sheet = cv2.imread(args.sheet)
 sr = None
@@ -197,7 +201,7 @@ for name, fl in frames.items():
         cell[ys0 + dy:ys1 + dy, xs0 + dx:xs1 + dx] = np.dstack([rgb, al])[ys0:ys1, xs0:xs1]
         strip[:, c * CW:(c + 1) * CW] = cell
     Image.fromarray(cv2.cvtColor(strip, cv2.COLOR_BGRA2RGBA)).save(
-        os.path.join(args.outdir, name + ".webp"), quality=76, method=6)
+        os.path.join(args.outdir, name + ".webp"), quality=80, method=6)
     counts[name] = len(fl)
 
 print("frames per animation:", json.dumps(counts))

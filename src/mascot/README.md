@@ -212,6 +212,16 @@ For every animation in `PANELS`:
    colour and contrast in Lab colour space so the sprites blend in.
 6. **Line up** the frames with their feet on the same line, and save one strip.
 
+Strips are saved at **2× resolution** (`--hd 2`, the default) so they stay
+sharp on phones and retina screens; the CSS shrinks them to fit. Use `--hd 1`
+for files about half the size.
+
+**Why the animations are softer than the normal pose:** the normal pose comes
+from a big original picture (~650 px tall). The animation frames on the sheet
+are only ~60 px, and upscaling can't fully invent the missing detail. For
+truly HD animations, export the sprite sheet bigger, ideally 3–4× larger,
+and run step 3 again.
+
 It prints how many frames each strip has. Copy those into `ANIMS` in `Mascot.jsx`.
 
 **Using a different sprite sheet.** Open it in an image viewer and write down
