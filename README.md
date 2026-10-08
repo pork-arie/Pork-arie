@@ -29,6 +29,8 @@ I take on freelance **web development** and **graphic design** work for startups
 
 - **Digital Marketing** — HubSpot
 - **React Development**
+![Design pioner page](<img width="2382" height="3369" alt="image" src="https://github.com/user-attachments/assets/bc912af1-ec87-4e65-9b4a-a88b202216ef" />)
+
 
 ---
 
