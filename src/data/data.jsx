@@ -16,6 +16,7 @@ import church from '../assets/certproj/church-ap.webp'
 import c1 from '../assets/certproj/c1.webp'
 import c2 from '../assets/certproj/c2.webp'
 import c3 from '../assets/certproj/c3.webp'
+import freecode from '../assets/freecode.webp'
 
 // Your links, used in the About icons, footer and contact section.
 // Leave a value as "" to hide that link.
@@ -123,6 +124,12 @@ export const certificates = [
     },
     {
         id: 5,
+        name: "FrontEnd Development",
+        description: "FreeCode Camp Certification",
+        img: freecode,
+    },
+    {
+        id: 6,
         name: "Make Basics",
         description: "Make automation Certification",
         img: bas,
