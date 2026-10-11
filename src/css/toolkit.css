@@ -1,0 +1,34 @@
+/* ---------- Toolkit (src/pages/stack.jsx) ---------- */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  overflow: hidden;
+}
+.stack-col {
+  background: var(--bgc);
+  padding: 34px;
+}
+.stack-col h3 {
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  margin: 10px 0 24px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 760px) {
+  .stack-grid {
+    grid-template-columns: 1fr;
+  }
+  .stack-col {
+    padding: 26px;
+  }
+}

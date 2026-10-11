@@ -1,35 +1,74 @@
-import {motion} from 'framer-motion'
-import {project} from '../data/data'
+import { useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { goWithCurtain } from "../components/transition";
+import Reveal from "../components/Reveal";
+import { project } from "../data/data";
+import "../css/work.css";
 
-function Featured(){
+const pad = (n) => String(n).padStart(2, "0");
 
-    return(
-        <>
-        <section  id="feat" className='dotted-bg'>
-            
-              <motion.h1 className='fh' style={{color:"#0A122A"}} initial={{opacity:0, y:20}} whileInView={{opacity:1,y:0}} transition={{duration:0.3, ease:'ease'}} viewport={{amount:0.2}}>Recent Projects</motion.h1>
-                <div className="fcard">
+// Selected work: the first project is a wide case-study card, the rest sit
+// two per row. Each card opens that project's case-study page.
+function Featured() {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-                 {project.map((pro,index) => (
-                    <motion.div className='fcard-con' key={pro.id} initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }} whileInView={{opacity:1,x:0}} transition={{duration:0.3,ease:'ease'}}>
-                    <div className='fimg'>
-                        <img src={pro.img} alt="img" id='fimg' loading="lazy" />
-                    </div>
-                    <div className='fname'>
-                        <h1>{pro.name}</h1>
-                        <p>{pro.description}</p>
-                    </div>
-                    </motion.div>
+  // coming back from a case study ("/#work", "/#contact") -> jump to that section
+  useEffect(() => {
+    const id = location.hash === "#proj" ? "work" : location.hash.slice(1);
+    if (id) document.getElementById(id)?.scrollIntoView();
+  }, [location.hash]);
 
+  return (
+    <section className="sec panel" id="work" data-theme="dark">
+      <div className="wrap">
+        <Reveal className="label">
+          <span className="mono">(03) — Selected work</span>
+        </Reveal>
+        <Reveal className="sec-head">
+          <h2 className="big-h">Systems built<br />for <em>real</em> work.</h2>
+          <p className="mono">{pad(project.length)} case studies</p>
+        </Reveal>
 
-                ))}
-
+        <div className="bento">
+          {project.map((pro, i) => (
+            <Reveal
+              key={pro.id}
+              className={`case${i === 0 ? " wide" : ""}`}
+              delay={i === 0 ? 0 : ((i + 1) % 2) * 0.12}
+            >
+              <Link
+                to={`/detail/${pro.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  goWithCurtain(navigate, `/detail/${pro.id}`);
+                }}
+                data-cursor="View case →"
+                aria-label={`${pro.name} case study`}
+              >
+                <span className="case-num mono">{pad(i + 1)} / {pad(project.length)}</span>
+                <div className="case-shot">
+                  <img src={pro.img} alt={`${pro.name} screenshot`} loading="lazy" />
                 </div>
-            
-        </section>
-        </>
-    )
-
+                <div className="case-info">
+                  <div>
+                    {pro.kind && <span className="mono">{pro.kind}</span>}
+                    <h3>{pro.name}</h3>
+                    {i === 0 && pro.short && <p className="case-desc">{pro.short}</p>}
+                  </div>
+                  <div className="case-tags">
+                    {pro.stack.slice(0, i === 0 ? 4 : 2).map((t) => (
+                      <span key={t}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
-export default Featured
+export default Featured;

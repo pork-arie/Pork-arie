@@ -1,0 +1,111 @@
+/* ---------- Selected work (src/pages/featured.jsx) ---------- */
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.case {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.case.wide {
+  grid-column: 1 / -1;
+}
+.case > a {
+  display: block;
+  padding: 14px;
+}
+.case-shot {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 16 / 8.4;
+  background: #0a1028;
+}
+.case.wide .case-shot {
+  aspect-ratio: 16 / 6.6;
+}
+.case-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 1.2s var(--ease);
+}
+.case-shot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(6, 10, 24, 0.55));
+  pointer-events: none;
+}
+.case:hover .case-shot img {
+  transform: scale(1.045);
+}
+.case-num {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 2;
+  color: var(--text);
+  background: rgba(6, 10, 24, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 7px 12px;
+  border-radius: 99px;
+}
+.case-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 22px 10px 8px;
+}
+.case h3 {
+  font-size: clamp(26px, 2.5vw, 38px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  margin-top: 8px;
+}
+.case-desc {
+  color: var(--muted);
+  max-width: 52ch;
+  margin-top: 8px;
+  line-height: 1.5;
+  font-size: 15px;
+}
+.case-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 340px;
+}
+.case-tags span {
+  font: 500 11px var(--label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .bento {
+    grid-template-columns: 1fr;
+  }
+  .case-shot,
+  .case.wide .case-shot {
+    aspect-ratio: 16 / 10;
+  }
+  .case-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .case-tags {
+    justify-content: flex-start;
+  }
+}

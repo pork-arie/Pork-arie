@@ -1,382 +1,276 @@
-#contact {
-    min-height: 80vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    
-    align-items: center;
-    
-    padding: 50px 20px;
-    color:var(--bg);
-    
+/* ---------- Contact (src/pages/contact.jsx) ---------- */
+.contact {
+  overflow: hidden;
+  padding-bottom: 120px;
 }
-
-#contact h1 {
-    font-family: 'ougther', sans-serif; 
-    font-size: clamp(1rem, 3vw, 4rem);
-    
-    text-transform: uppercase;
-   
-    
+.contact-aura {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 1100px;
+  height: 700px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(255, 122, 69, 0.1), transparent);
+  pointer-events: none;
 }
-
-.form-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh; 
-  width: 100%;
-  padding: 20px;
+.contact .wrap {
+  position: relative;
 }
-
-
-form {
-  background: var(--bg); 
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  width: 100%;
-  max-width: 600px;
-  padding: 40px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: start;
 }
-
-
-form input,
-form textarea {
-  width: 100%;
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: white;
-  color: rgb(12, 12, 12);
-  font-size: 1rem;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.contact-title {
+  font-size: clamp(56px, 7.4vw, 124px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-weight: 400;
 }
-
-form textarea {
-  resize: vertical;
-  min-height: 120px;
+.contact-lead {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 36ch;
+  margin: 32px 0 40px;
 }
-
-
-form input:focus,
-form textarea:focus {
-  border-color: var(--bg); 
-  box-shadow: 0 0 10px rgba(21, 21, 21, 0.5);
-}
-
-/* Labels */
-form label {
-  font-size: 0.9rem;
-  color: white;
-  margin-bottom: 8px;
-  display: block;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-
-form button {
-  width: 100%; 
-  padding: 15px;
-  border-radius: 10px;
-  border: none;
-  background: white;
-  color: #191111;
-  font-weight: bold;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-
-form button:hover {
-  background: #9d9898;
-  box-shadow: 0 0 20px rgba(11, 11, 11, 0.6);
-  transform: translateY(-2px);
-}
-
-form button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-@media (max-width: 600px) {
-  form {
-    padding: 20px;
-  }
-}
-
-
-
-.what{
-    display: flex;
-    flex-direction: column;
-}
-.what h3,h1{
-    font-family: 'ougther';
-    font-size: 40px;
-    color: white;
-}
-
-
-.what {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 50px 0;
-  
-}
-
-.what h3 {
-  font-size: 2rem;
-  margin-bottom: 30px;
-  text-shadow: 0 0 15px rgba(2, 2, 2, 0.5); 
-}
-
-
-.offer-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  max-width: 800px;
-}
-
-
-.offer-tags span {
+.contact-mail {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 24px;
-  border-radius: 999px; 
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  cursor: default;
-  transition: all 0.3s ease;
-  
-  
-  background: white;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  gap: 14px;
+  font-size: clamp(20px, 2.2vw, 30px);
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
 }
-
-
-.offer-tags span:nth-child(odd) {
-  border: 1px solid rgba(17, 48, 54, 0.6); 
-  box-shadow: 0 0 10px rgba(0, 216, 255, 0.1);
-}
-
-.offer-tags span:nth-child(even) {
-  border: 1px solid rgba(50, 79, 129, 0.6); 
-  box-shadow: 0 0 10px rgba(157, 0, 255, 0.1);
-}
-
-.offer-tags span:hover {
-  transform: translateY(-3px) scale(1.05);
-  background: white;
-  color: #191111;
-  font-weight: bold;
-}
-
-.offer-tags span:nth-child(odd):hover {
-  box-shadow: 0 0 20px rgba(0, 216, 255, 0.8); /* Strong Cyan Glow */
-}
-
-.offer-tags span:nth-child(even):hover {
-  box-shadow: 0 0 20px rgba(157, 0, 255, 0.8); /* Strong Purple Glow */
-}
-
-
-
-
-
-
-.process-section {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 20px;
-  color: var(--bg);
-}
-
-.process-title {
-  font-family: 'aquarium', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 60px;
-  text-align: center;
-  
-}
-
-
-.process-container {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-}
-
-
-.process-line {
-  position: absolute;
-  left: 24px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-
-.process-line-animated {
-  position: absolute;
-  left: 24px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #00d8ff;
-  box-shadow: 0 0 15px rgba(0, 216, 255, 0.7);
-  transform-origin: top;
-}
-
-.process-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 50px;
-}
-
-
-.process-step {
-  position: relative;
-  padding-left: 80px; 
-  min-height: 80px;
-}
-
-
-.process-dot {
-  position: absolute;
-  left: 4px; 
-  top: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: white;
-  border: 2px solid var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1rem;
-  color: var(--bg);
-  transition: border-color 0.3s;
+.copy {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: none;
   cursor: pointer;
-  z-index: 2; 
+  transition: all 0.3s;
+}
+.copy.done {
+  background: var(--ice);
+  color: var(--navy);
+  border-color: var(--ice);
+}
+.offer {
+  margin-top: 48px;
+}
+.offer ul {
+  list-style: none;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.offer li {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 17px;
+}
+.offer li::after {
+  content: '↗';
+  color: var(--muted);
 }
 
-.process-dot:hover {
-  background: #00d8ff;
-  color: #191111;
+/* the form card */
+.contact-form {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 32px;
+  padding: 36px;
+  box-shadow: 0 40px 80px -40px rgba(10, 18, 42, 0.25), 0 0 0 8px rgba(208, 230, 253, 0.35);
 }
-
-
-.step-content {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 15px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+.form-head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 26px;
 }
-
-.step-content:hover {
-  transform: translateX(10px); 
-  border-color: var(--bg);
+.need {
+  border: 0;
+  margin-bottom: 26px;
 }
-
-.step-content h3 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-  color: var(--bg);
+.need legend {
+  margin-bottom: 12px;
 }
-
-.step-content p {
-  color: #000000;
-  line-height: 1.6;
+.pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
-
-@media (max-width: 768px) {
-  .process-step {
-    padding-left: 50px;
-  }
-  .process-dot {
-    width: 30px;
-    height: 30px;
-    font-size: 0.8rem;
-  }
+.pick button {
+  font: 500 14px var(--sans);
+  color: var(--text);
+  background: #F3F6FC;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
 }
-
-
-
-
-
-#contact {
-  position: relative; 
-  overflow: hidden; 
-  
-
-  background-color: var(--bg); 
-  z-index: 1; 
+.pick button.on {
+  background: var(--navy);
+  color: #fff;
+  transform: scale(1.03);
 }
-
-#contact::after {
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.field {
+  position: relative;
+  display: block;
+  margin-bottom: 22px;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(10, 18, 42, 0.18);
+  background: transparent;
+  padding: 26px 0 10px;
+  font-size: 18px;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  transition: border-color 0.3s;
+}
+/* label sits inside the field, then floats up once you type */
+.field span {
+  position: absolute;
+  left: 0;
+  top: 26px;
+  font-size: 16px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: all 0.35s var(--ease);
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--navy);
+}
+.field input:focus + span,
+.field input:not(:placeholder-shown) + span,
+.field textarea:focus + span,
+.field textarea:not(:placeholder-shown) + span {
+  top: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.field::after {
   content: '';
   position: absolute;
-  bottom: 0; 
   left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease);
+}
+.field:focus-within::after {
+  transform: none;
+}
+.send {
   width: 100%;
-  height: 300px; 
-  
-  
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-  background-size: 20px 20px;
-  
-  /* The Gradient Fade - Fades out as it goes up! */
-  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
-  mask-image: linear-gradient(to top, black 0%, transparent 100%);
-  
-  z-index: 0; /* Puts it behind the form */
-  pointer-events: none; /* Makes sure you can still click the form */
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 28px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--signal);
+  color: #160800;
+  font: 500 17px var(--sans);
+  cursor: pointer;
+}
+.send:disabled {
+  opacity: 0.75;
+}
+.form-error {
+  margin-top: 16px;
+  color: #c2410c;
+  font-size: 15px;
+}
+.sent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--navy);
+  color: #fff;
+  clip-path: circle(0% at 50% 92%);
+  pointer-events: none;
+  transition: clip-path 1s var(--ease);
+}
+.contact-form.done .sent {
+  clip-path: circle(150% at 50% 92%);
+  pointer-events: auto;
+}
+.sent b {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 99px;
+  background: var(--signal);
+  color: #160800;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+}
+.sent strong {
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.sent p {
+  color: #a9b5d6;
+  margin-top: 6px;
+}
+.sent button {
+  margin-top: 14px;
+  border: 0;
+  background: none;
+  color: var(--ice);
+  cursor: pointer;
+  padding: 0;
 }
 
-/* 3. Keep the form and text ON TOP of the dots */
-#contact > * {
-  position: relative;
-  z-index: 2; 
-}
-/* direct email link under the contact heading */
-.contact-alt {
-  padding: 0;
-  margin: 4px 0 20px;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 0.95rem;
-  text-align: center;
-}
-.contact-alt a {
-  color: white;
-  font-weight: 600;
-  text-underline-offset: 3px;
-  word-break: break-all;
+@media (max-width: 760px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .contact-mail {
+    font-size: 18px;
+  }
+  .contact-form {
+    padding: 24px;
+    border-radius: 24px;
+  }
+  .row2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .field input,
+  .field textarea {
+    font-size: 16px; /* 16px stops iOS zoom-on-focus */
+  }
 }

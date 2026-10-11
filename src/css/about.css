@@ -1,0 +1,95 @@
+/* ---------- About (src/pages/main.jsx) ---------- */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 72px;
+  align-items: start;
+}
+.about-hello {
+  margin-bottom: 24px;
+  color: var(--accent);
+}
+.statement {
+  font-size: clamp(30px, 3.5vw, 54px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+.statement span {
+  opacity: 0.14;
+  transition: opacity 0.5s;
+}
+.statement span.lit {
+  opacity: 1;
+}
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  list-style: none;
+  margin-top: 40px;
+}
+.about-links a:hover {
+  color: var(--text);
+}
+
+/* the PixelTransition card, restyled for the dark panel */
+.about-photo .pixelated-image-card {
+  width: 100%;
+  height: auto;
+  border: 0;
+  border-radius: 22px;
+  background: #fff;
+}
+.about-photo .pixelated-image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 96px;
+  border-top: 1px solid var(--line);
+}
+.stat {
+  padding: 28px 0 0 28px;
+  border-right: 1px solid var(--line);
+}
+.stat:first-child {
+  padding-left: 0;
+}
+.stat:last-child {
+  border-right: 0;
+}
+.stat b {
+  display: block;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(56px, 6vw, 96px);
+  line-height: 1;
+}
+.stat p {
+  margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .about-photo .pixelated-image-card {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  .stat,
+  .stat:first-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+}

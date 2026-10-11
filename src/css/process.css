@@ -1,0 +1,94 @@
+/* ---------- Process (src/pages/process.jsx) ---------- */
+.process {
+  position: relative;
+  height: 260vh;
+}
+.process-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.process-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 72px;
+}
+.process-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 27px;
+  height: 1px;
+  background: var(--line);
+}
+.process-rail i {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--navy), var(--signal));
+  transform-origin: left;
+}
+.process-num {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--bgc);
+  display: grid;
+  place-items: center;
+  font: 600 13px var(--label);
+  transition: all 0.5s var(--ease);
+}
+.process-step h3 {
+  font-size: 30px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 34px 0 12px;
+}
+.process-step p {
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 34ch;
+}
+.process-step h3,
+.process-step p {
+  opacity: 0.3;
+  transition: opacity 0.5s;
+}
+.process-step.on .process-num {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+  box-shadow: 0 10px 30px rgba(10, 18, 42, 0.25);
+}
+.process-step.on h3,
+.process-step.on p {
+  opacity: 1;
+}
+
+@media (max-width: 760px) {
+  .process {
+    height: auto;
+  }
+  .process-pin {
+    position: static;
+    height: auto;
+    padding: 100px 0;
+  }
+  .process-track {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .process-rail {
+    display: none;
+  }
+  .process-step h3,
+  .process-step p {
+    opacity: 1;
+  }
+}
