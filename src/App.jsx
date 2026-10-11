@@ -3,7 +3,6 @@ import Front from './pages/front'
 import Main from './pages/main'
 
 import './nav.css'
-import './css/contact.css'
 
 import Footer from './parts/footer'
 import Stack from './pages/stack'

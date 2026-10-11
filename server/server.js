@@ -22,12 +22,12 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/api/contact', async (req,res) => {
-    const {name,email,message} = req.body;
+    const {name,email,message,service} = req.body;
     const mailOptions = {
         from: `"My Portfolio website" <${process.env.GMAIL_USER}>`,
         to: process.env.GMAIL_RECIPIENT,
         subject: `New message from ${name}`,
-        html:`<p><b>Name:</b> ${name}</p><p><b>Email:</b> ${email}</p><p><b>Message:</b> ${message}</p>`
+        html:`<p><b>Name:</b> ${name}</p><p><b>Email:</b> ${email}</p>${service ? `<p><b>Needs help with:</b> ${service}</p>` : ''}<p><b>Message:</b> ${message}</p>`
     };
 
     try {

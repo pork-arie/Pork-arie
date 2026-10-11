@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { name, email, message } = req.body;
+  const { name, email, message, service } = req.body;
 
   if (!name || !email || !message) {
     return res.status(400).json({ success: false, message: 'Please fill in all fields.' });
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     from: `"My Portfolio website" <${process.env.GMAIL_USER}>`,
     to: process.env.GMAIL_RECIPIENT,
     subject: `New message from ${name}`,
-    html: `<p><b>Name:</b> ${name}</p><p><b>Email:</b> ${email}</p><p><b>Message:</b> ${message}</p>`,
+    html: `<p><b>Name:</b> ${name}</p><p><b>Email:</b> ${email}</p>${service ? `<p><b>Needs help with:</b> ${service}</p>` : ''}<p><b>Message:</b> ${message}</p>`,
   };
 
   try {

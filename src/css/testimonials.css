@@ -1,37 +1,55 @@
-.tm {
-  padding: clamp(56px, 8vw, 104px) 20px;
-  background: white;
-  color: var(--bg);
+/* ---------- Kind words (src/pages/testimonials.jsx) ---------- */
+.tm-stage {
+  min-height: 400px;
 }
-.tm-title {
-  font-family: 'aquarium', sans-serif;
-  font-size: clamp(2rem, 4vw, 3rem);
-  text-align: center;
-  margin-bottom: 40px;
+.tm-quote blockquote {
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.9vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  max-width: 34ch;
 }
-.tm-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 20px;
-  max-width: 1100px;
-  margin: 0 auto;
+.tm-quote blockquote::before {
+  content: '“';
+  color: var(--signal);
 }
-.tm-card {
-  margin: 0;
-  padding: 28px;
-  border-radius: 16px;
-  border: 1px solid #d7dcea;
-  background: white;
+.tm-quote figcaption {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
+  gap: 18px;
+  align-items: center;
+  margin-top: 40px;
 }
-.tm-card blockquote {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.7;
+.tm-quote b {
+  font-weight: 500;
 }
-.tm-card figcaption { display: flex; flex-direction: column; gap: 2px; }
-.tm-card strong { color: var(--bg); }
-.tm-card span { color: #5B6477; font-size: 0.9rem; }
+.tm-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+.tm-dots button {
+  position: relative;
+  width: 40px;
+  height: 2px;
+  border: 0;
+  background: var(--line);
+  overflow: hidden;
+  cursor: pointer;
+}
+.tm-dots button.on::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ice);
+  animation: tm-bar 5s linear forwards;
+}
+@keyframes tm-bar {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
+}
+
+@media (max-width: 760px) {
+  .tm-stage {
+    min-height: 380px;
+  }
+}
