@@ -43,6 +43,7 @@ function App() {
       </BrowserRouter>
       <Mascot size={window.innerWidth < 640 ? 100 : 140} />
       <div className="grain" aria-hidden="true" />
+      <div className="curtain" aria-hidden="true" />
       <Cursor />
     </>
   );

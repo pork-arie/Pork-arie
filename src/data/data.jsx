@@ -39,6 +39,9 @@ export const toolkit = [
   Projects
   - live / github: paste the URLs; empty "" hides the button on the detail page
   - kind, short: the small label and one-line summary on the home page Work cards
+  - platform, builtFor: shown in the info strip at the top of the case-study page
+  - theme: the project's own accent color on its case-study page
+  - captions: one name per screenshot (img, img1, img2, img3), shown in the Screens gallery
   - role, problem, built: the case-study part of the detail page. These are
     drafts, rewrite them in your own words and add a real result if you have one
 */
@@ -47,6 +50,10 @@ export const project = [
         id: 1,
         name: "GymTrack",
         kind: "Gym management · Solo project",
+        platform: "Web app",
+        builtFor: "Gym owners & front-desk staff",
+        theme: { color: "#2E4FC7", soft: "#E6ECFF", glow: "rgba(120,150,255,.28)" },
+        captions: ["Check-in desk", "Owner dashboard", "Members", "Plans & pricing"],
         short: "Front-desk check-ins, a live dashboard of who is on the floor, and plans the owner can edit.",
         description: "A full-stack management system utilizing React, Node.js, Prisma, and PostgreSQL, designed to streamline gym operations by providing real-time data visualization for members, staff, and workout sessions.",
         img: gym1,
@@ -69,6 +76,10 @@ export const project = [
         id: 2,
         name: "Faculty Evaluation System",
         kind: "NwSSU · Team of 5",
+        platform: "Android app + web dashboard",
+        builtFor: "Students, faculty & admins",
+        theme: { color: "#14794A", soft: "#E3F5EA", glow: "rgba(60,200,130,.22)" },
+        captions: ["Overview", "Admin sign-in", "Student management", "Department view"],
         short: "Students rate their teachers in an Android app; admins manage everything on the web.",
         description: "A web and mobile system for NwSSU where students evaluate their teachers on an Android app and administrators manage everything from a web dashboard, built on Firebase for authentication and real-time data.",
         img: nwssu,
@@ -91,6 +102,10 @@ export const project = [
         id: 3,
         name: "Appoint",
         kind: "Church office · Solo project",
+        platform: "Web app",
+        builtFor: "Parishioners & office staff",
+        theme: { color: "#6B3FA0", soft: "#F1E9FB", glow: "rgba(170,120,240,.26)" },
+        captions: ["Landing", "Choose a service", "Particulars", "Pick a date & time"],
         short: "Book certificates and sacrament schedules online instead of calling the office.",
         description: "A dynamic MERN-style application demonstrating end-to-end development. The frontend is built with React and Vite, while Node.js and Express.js power the backend API. Data is persisted in MongoDB Atlas via Mongoose ODM, with secure JWT/session-based authentication and automated email handling via Nodemailer.",
         img: church,

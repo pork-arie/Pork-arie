@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { goWithCurtain } from "../components/transition";
 import Reveal from "../components/Reveal";
 import { project } from "../data/data";
 import "../css/work.css";
@@ -10,12 +11,12 @@ const pad = (n) => String(n).padStart(2, "0");
 // two per row. Each card opens that project's case-study page.
 function Featured() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // coming back from a case study ("/#work") -> jump to this section
+  // coming back from a case study ("/#work", "/#contact") -> jump to that section
   useEffect(() => {
-    if (location.hash === "#work" || location.hash === "#proj") {
-      document.getElementById("work")?.scrollIntoView();
-    }
+    const id = location.hash === "#proj" ? "work" : location.hash.slice(1);
+    if (id) document.getElementById(id)?.scrollIntoView();
   }, [location.hash]);
 
   return (
@@ -36,7 +37,15 @@ function Featured() {
               className={`case${i === 0 ? " wide" : ""}`}
               delay={i === 0 ? 0 : ((i + 1) % 2) * 0.12}
             >
-              <Link to={`/detail/${pro.id}`} data-cursor="View case →" aria-label={`${pro.name} case study`}>
+              <Link
+                to={`/detail/${pro.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  goWithCurtain(navigate, `/detail/${pro.id}`);
+                }}
+                data-cursor="View case →"
+                aria-label={`${pro.name} case study`}
+              >
                 <span className="case-num mono">{pad(i + 1)} / {pad(project.length)}</span>
                 <div className="case-shot">
                   <img src={pro.img} alt={`${pro.name} screenshot`} loading="lazy" />

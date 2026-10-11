@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useBarTheme from "../components/useBarTheme";
 
 const LINKS = [
   ["About", "main"],
@@ -11,18 +12,11 @@ const LINKS = [
 // turns dark on white sections and light on the dark panels, and it
 // highlights the link of the section you're currently in.
 function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [theme, setTheme] = useState("light");
+  const { scrolled, theme } = useBarTheme();
   const [active, setActive] = useState("");
 
   useEffect(() => {
     const update = () => {
-      setScrolled(window.scrollY > 40);
-      const under = [...document.querySelectorAll("[data-theme]")].find((s) => {
-        const r = s.getBoundingClientRect();
-        return r.top <= 40 && r.bottom > 40;
-      });
-      setTheme(under?.dataset.theme ?? "light");
       let on = "";
       LINKS.forEach(([, id]) => {
         const el = document.getElementById(id);
@@ -32,11 +26,7 @@ function Nav() {
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   return (
