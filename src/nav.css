@@ -1,102 +1,76 @@
-nav {
-  display: flex;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2) ;
-  box-shadow: 0 4px 8px rgba(250, 249, 249, 0.1);
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 10px 40px;
-
-  border-radius: 20px;
-  margin: 20px auto 0; 
-  width: 90%;
-  max-width: 1500px;
-
-  
- 
-}
-.navwrap{
-   position: sticky;
-   top: 30px;
-   padding: 0 40px;
-   z-index: 9999;
-}
-nav ul {
-  display: flex;
-  gap: 4rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-
-}
-
-nav a {
-  font-family: 'aquarium';
-  text-decoration: none;
-  
-  
-  
-  color: white;
-  font-size: clamp(1.3rem,1vw,1.3rem);
-  
-  position: relative;
-  padding: 8px 16px;
-  
-}
-nav a::after{
-  content: '';
-  position: absolute;
-  bottom: -4px;
+/* ---------- top bar (src/parts/nav.jsx) ---------- */
+.topbar {
+  position: fixed;
+  top: 0;
   left: 0;
-  width: 0;
-  height: 3px;
-  background: white;
-  transition: width 0.3s ease;
-
+  right: 0;
+  z-index: 50;
+  padding: 22px 0;
+  border-bottom: 1px solid transparent;
+  transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s, color 0.4s;
 }
-
-nav a:hover::after {
-  width: 100%;
+.topbar[data-on='light'] {
+  --text: #0A122A;
+  --muted: #5B6684;
+  --line: rgba(10, 18, 42, 0.1);
+  color: var(--text);
 }
-/* about icon*/
-.iconC{
-  margin-bottom: 30px;
+.topbar[data-on='dark'] {
+  --text: #EAF2FF;
+  --muted: #8792B5;
+  --line: rgba(208, 230, 253, 0.09);
+  color: var(--text);
+}
+.topbar.scrolled {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: var(--line);
+}
+.topbar.scrolled[data-on='light'] {
+  background: rgba(255, 255, 255, 0.72);
+}
+.topbar.scrolled[data-on='dark'] {
+  background: rgba(6, 10, 24, 0.6);
+}
+.topbar .wrap {
   display: flex;
-  gap:15px;
+  justify-content: space-between;
+  align-items: center;
 }
-.icons{
-  height: 40px;
-  transition:  0.5s ease;
+.topbar .brand {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.02em;
 }
-
-.icons:hover{
-  transform: scale(1.2);
+.topbar ul {
+  display: flex;
+  gap: 34px;
+  list-style: none;
 }
-
-
-
-
-
-
-
-
-
-/* button */
-
-.p1{
-  text-align: center;
-  font-size: 40px;
-  padding-top: 9rem;
-  padding-bottom: 90px;
+.topbar ul a {
+  font: 500 12px var(--label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+.topbar ul a:hover,
+.topbar ul a.on {
+  color: var(--text);
 }
 
-
-
-
-button{
-  padding: 30px;
-  width: 200px;
-  font-size: 30px;
+@media (max-width: 760px) {
+  .topbar {
+    padding: 16px 0;
+  }
+  .topbar .brand {
+    font-size: 18px;
+  }
+  .topbar ul {
+    gap: 14px;
+  }
+  .topbar ul a {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
 }
