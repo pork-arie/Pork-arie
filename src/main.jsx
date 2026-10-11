@@ -5,7 +5,6 @@ import "./index.css";
 import App from "./App.jsx";
 import "./css/cards.css";
 import "./css/d.css";
-import "./css/mobile.css";
 import "./css/footer.css";
 
 createRoot(document.getElementById("root")).render(

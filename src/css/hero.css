@@ -1,0 +1,99 @@
+/* ---------- Front / hero (src/pages/front.jsx) ---------- */
+.front {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 56px;
+  overflow: hidden;
+}
+.front .cursor-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.front-aura {
+  position: absolute;
+  inset: auto -10% -40% -10%;
+  height: 70%;
+  background: radial-gradient(60% 60% at 50% 100%, rgba(208, 230, 253, 0.55), transparent 70%);
+  pointer-events: none;
+}
+.front-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  pointer-events: none; /* let the grid feel the cursor through the text */
+}
+.front-inner a {
+  pointer-events: auto;
+}
+.front-meta {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  margin-bottom: 28px;
+}
+.name {
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 0.8;
+  font-size: clamp(4.6rem, 22.5vw, 330px);
+  letter-spacing: -0.01em;
+  display: flex;
+  justify-content: space-between;
+  color: var(--navy);
+}
+.name .mask {
+  display: inline-block;
+  overflow: hidden;
+  padding-top: 0.08em;
+}
+.name .mask > span {
+  display: inline-block;
+}
+.front-bottom {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: end;
+  gap: 40px;
+  margin-top: 44px;
+}
+.front-tagline {
+  font-size: clamp(22px, 2.3vw, 34px);
+  line-height: 1.18;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  max-width: 21ch;
+}
+.front-cta {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-right: 150px; /* leaves room for the mascot in the corner */
+}
+
+@media (max-width: 760px) {
+  .front {
+    padding-bottom: 40px;
+  }
+  .front-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .hide-sm {
+    display: none;
+  }
+  .front-bottom {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .front-cta {
+    justify-content: flex-start;
+    padding-right: 0;
+  }
+}

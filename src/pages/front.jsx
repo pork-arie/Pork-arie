@@ -1,38 +1,73 @@
-import CursorGrid from "../components/CursorGrid";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import CursorGrid from "../components/CursorGrid";
+import { EASE } from "../components/motion";
+import "../css/hero.css";
+
+const NAME = "ANGHEL";
+
+// Live time in Manila for the info row ("MNL 21:14:05")
+function useManilaClock() {
+  const read = () =>
+    new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Manila" });
+  const [time, setTime] = useState(read);
+  useEffect(() => {
+    const id = setInterval(() => setTime(read()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
 
 function Front() {
-  return (
-    <>
-      <section className="front" id="front">
-        <CursorGrid color="#0A122A" gridOpacity={0.06} />
-        <motion.h1
-          className="name"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ amount: 0.2 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-        >
-          ANGHEL
-        </motion.h1>
+  const time = useManilaClock();
+  const fade = (delay) => ({
+    initial: { opacity: 0, y: 24 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 1, ease: EASE, delay },
+  });
 
-        {/* what I do + what to do next, readable in the first 5 seconds */}
-        <motion.div
-          className="front-intro"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
-        >
-          <p className="front-tagline">
-            Web developer building websites and systems for small businesses in the Philippines.
-          </p>
-          <div className="front-cta">
-            <a href="#contact" className="front-btn is-primary">Start a project</a>
-            <a href="#proj" className="front-btn">See my work</a>
-          </div>
+  return (
+    <section className="front" id="front" data-theme="light">
+      {/* the original white background + cursor grid, kept as is */}
+      <CursorGrid color="#0A122A" gridOpacity={0.06} />
+      <div className="front-aura" aria-hidden="true" />
+
+      <div className="wrap front-inner">
+        <motion.div className="front-meta" {...fade(0.2)}>
+          <span className="mono">Web developer</span>
+          <span className="mono hide-sm">Systems for small businesses</span>
+          <span className="mono hide-sm">Based in the Philippines</span>
+          <span className="mono">MNL {time}</span>
         </motion.div>
-      </section>
-    </>
+
+        {/* each letter slides up out of its own mask */}
+        <h1 className="name" aria-label={NAME}>
+          {[...NAME].map((ch, i) => (
+            <span className="mask" key={i} aria-hidden="true">
+              <motion.span
+                initial={{ y: "105%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1.3, ease: EASE, delay: 0.25 + i * 0.06 }}
+              >
+                {ch}
+              </motion.span>
+            </span>
+          ))}
+        </h1>
+
+        <div className="front-bottom">
+          <motion.p className="front-tagline" {...fade(0.75)}>
+            I build web <em>systems</em> for small businesses that hold up with real users.
+          </motion.p>
+          <motion.div className="front-cta" {...fade(0.9)}>
+            <a href="#work" className="btn">See my work</a>
+            <a href="#contact" className="btn primary">
+              Start a project <span className="arr">→</span>
+            </a>
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 }
 

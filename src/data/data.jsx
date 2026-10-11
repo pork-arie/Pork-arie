@@ -28,6 +28,13 @@ export const socials = {
     instagram: "https://www.instagram.com/pork_ari3/",
 }
 
+// Toolkit section: three columns of tools. Add or remove names freely.
+export const toolkit = [
+    { group: "Frontend", title: "Interfaces", tools: ["React", "Vite", "Tailwind CSS", "JavaScript", "HTML / CSS", "Framer Motion"] },
+    { group: "Backend", title: "Logic & APIs", tools: ["Node.js", "Express", "PHP", "JWT", "Nodemailer", "Kotlin"] },
+    { group: "Data", title: "Storage", tools: ["PostgreSQL", "Prisma", "MongoDB", "Firebase", "Firestore", "Supabase"] },
+]
+
 /*
   Projects
   - live / github: paste the URLs; empty "" hides the button on the detail page
