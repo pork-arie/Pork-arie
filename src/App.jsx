@@ -4,11 +4,10 @@ import Main from './pages/main'
 
 import './nav.css'
 import './css/contact.css'
-import './css/feature.css'
 
 import Footer from './parts/footer'
 import Stack from './pages/stack'
-import Projects from './pages/projects'
+import Certificates from './pages/certificates'
 import Nav from './parts/nav'
 import Contact from './pages/contact'
 import Featured from './pages/featured'
@@ -32,7 +31,7 @@ function App() {
                 <Main />
                 <Stack />
                 <Featured />
-                <Projects />
+                <Certificates />
                 <Process />
                 <Testimonials />
                 <Contact />

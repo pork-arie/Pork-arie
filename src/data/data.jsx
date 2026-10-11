@@ -38,6 +38,7 @@ export const toolkit = [
 /*
   Projects
   - live / github: paste the URLs; empty "" hides the button on the detail page
+  - kind, short: the small label and one-line summary on the home page Work cards
   - role, problem, built: the case-study part of the detail page. These are
     drafts, rewrite them in your own words and add a real result if you have one
 */
@@ -45,6 +46,8 @@ export const project = [
     {
         id: 1,
         name: "GymTrack",
+        kind: "Gym management · Solo project",
+        short: "Front-desk check-ins, a live dashboard of who is on the floor, and plans the owner can edit.",
         description: "A full-stack management system utilizing React, Node.js, Prisma, and PostgreSQL, designed to streamline gym operations by providing real-time data visualization for members, staff, and workout sessions.",
         img: gym1,
         img1: gym4,
@@ -65,6 +68,8 @@ export const project = [
     {
         id: 2,
         name: "Faculty Evaluation System",
+        kind: "NwSSU · Team of 5",
+        short: "Students rate their teachers in an Android app; admins manage everything on the web.",
         description: "A web and mobile system for NwSSU where students evaluate their teachers on an Android app and administrators manage everything from a web dashboard, built on Firebase for authentication and real-time data.",
         img: nwssu,
         img1: nwssu1,
@@ -85,6 +90,8 @@ export const project = [
     {
         id: 3,
         name: "Appoint",
+        kind: "Church office · Solo project",
+        short: "Book certificates and sacrament schedules online instead of calling the office.",
         description: "A dynamic MERN-style application demonstrating end-to-end development. The frontend is built with React and Vite, while Node.js and Express.js power the backend API. Data is persisted in MongoDB Atlas via Mongoose ODM, with secure JWT/session-based authentication and automated email handling via Nodemailer.",
         img: church,
         img1: c1,
@@ -108,36 +115,42 @@ export const certificates = [
     {
         id: 1,
         name: "Front-End Developer (React)",
+        issuer: "HackerRank",
         description: "HackerRank Certification",
         img: FrontEnd,
     },
     {
         id: 2,
         name: "Google Analytics",
+        issuer: "Google",
         description: "Google Analytics Certification",
         img: google,
     },
     {
         id: 3,
         name: "HubSpot Digital Marketing",
+        issuer: "HubSpot Academy",
         description: "HubSpot Academy Certification",
         img: hubspot,
     },
     {
         id: 4,
         name: "Make Advanced",
+        issuer: "Make",
         description: "Make automation Certification",
         img: adv,
     },
     {
         id: 5,
         name: "FrontEnd Development",
+        issuer: "freeCodeCamp",
         description: "FreeCode Camp Certification",
         img: freecode,
     },
     {
         id: 6,
         name: "Make Basics",
+        issuer: "Make",
         description: "Make automation Certification",
         img: bas,
     },
