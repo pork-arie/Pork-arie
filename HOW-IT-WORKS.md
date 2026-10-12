@@ -9,6 +9,45 @@ The libraries involved are ones the project already had:
 - **gsap**: only inside the original PixelTransition
 - **plain CSS**: everything else
 
+
+## Contents
+
+**Part 1: motion**
+0. Why it feels smooth: 4 rules
+1. The one easing curve
+2. Fade up on scroll (`<Reveal>`)
+3. Letters sliding up out of a mask
+4. Words lighting up as you scroll
+5. Numbers counting up
+6. The page transition (navy curtain)
+7. Light and dark sections
+8. A top bar that changes color
+9. The custom cursor
+10. Process: stays in place while a line draws
+11. Gallery that slides sideways
+12. **Stacked screenshots that start small and grow on scroll**
+13. Certificate preview that follows the cursor
+14. Contact form details
+15. Quote switcher
+16. Film grain
+17. Photo pixel swap
+
+**Part 2: components and layout**
+
+18. **The `Browser` frame**
+19. Full-size view (lightbox)
+20. Each project gets its own color
+21. Work cards: bento grid, hover zoom, number pill
+22. Toolkit grid with hairline dividers
+23. Front page details
+24. Top bar active link
+25. Labels, headings, buttons (shared classes)
+26. Copy-email button
+27. "Next case study" panel
+28. Phones and accessibility
+
+Plus a quick recipe for adding your own section at the end.
+
 ---
 
 ## 0. Why it feels smooth: 4 rules
@@ -442,26 +481,74 @@ const slide = useTransform(scrollYProgress, [0, 1], [0, -distance]); // 0 → -d
 
 ---
 
-## 12. A screenshot that tilts flat as it scrolls in (case study showcase)
+## 12. Stacked screenshots that start small and grow on scroll (case study showcase)
 
-**Where:** `src/pages/detail.jsx` and `src/css/detail.css`
+**What you see:** on a case-study page, the dark showcase holds 3 screenshots stacked on top of each other:
+- **one big screen** in the middle that starts **tilted back and smaller (90%)**, then stands up flat and grows to **full size** as you scroll into it
+- **two smaller screens** floating over its corners, slightly rotated, that **rise into place** at different speeds
+
+**Where:** `src/pages/detail.jsx` (showcase section) and `src/css/detail.css` (`.pd-show`, `.pd-main-shot`, `.pd-float`)
+
+### Step 1: stack them
+The big screen sits in normal layout. The two small ones use `position: absolute`, so they float **on top of** it, half hanging over its edges. Because they come later in the HTML, they're drawn above the big screen without needing a `z-index`.
 
 ```jsx
-const { scrollYProgress } = useScroll({ target: showRef, offset: ["start end", "start 10%"] });
-const tilt  = useTransform(scrollYProgress, [0, 1], [24, 0]);    // 24° → flat
-const grow  = useTransform(scrollYProgress, [0, 1], [0.9, 1]);   // 90% → full size
-const drift = useTransform(scrollYProgress, [0, 1], [160, 0]);   // side screens rise
-
-<motion.div className="pd-main-shot" style={{ rotateX: tilt, scale: grow }}> … </motion.div>
-<motion.div className="pd-float f1"  style={{ y: drift, rotate: -3 }}> … </motion.div>
+<section className="panel pd-show" data-theme="dark" ref={showRef}>
+  <div className="wrap">                       {/* position: relative = the anchor */}
+    <motion.div className="pd-main-shot" …>    {/* big screen, normal layout */}
+      <Browser src={screens[0]} … />
+    </motion.div>
+    <motion.div className="pd-float f1" …>     {/* small screen, bottom-left */}
+      <Browser src={screens[1]} … />
+    </motion.div>
+    <motion.div className="pd-float f2" …>     {/* small screen, top-right */}
+      <Browser src={screens[2]} … />
+    </motion.div>
+  </div>
+</section>
 ```
 
 ```css
-.pd-show      { perspective: 1600px; }      /* gives the tilt real 3D depth */
-.pd-main-shot { transform-origin: 50% 100%; }/* hinges on its bottom edge */
+.pd-show .wrap { position: relative; }          /* the floats are placed relative to this */
+.pd-float      { position: absolute; width: 30%; }
+.pd-float.f1   { left: -2%;  bottom: -70px; }   /* hangs off the bottom-left corner */
+.pd-float.f2   { right: -2%; top: -50px; }      /* hangs off the top-right corner */
 ```
 
-`useTransform` maps one range of numbers onto another. Scroll progress becomes an angle, a scale or a pixel offset.
+### Step 2: tie the animation to scroll
+`useScroll` gives a number from **0** (the section's top is just entering the bottom of the screen) to **1** (its top has reached 10% from the top of the screen). `useTransform` turns that one number into several effects:
+
+```jsx
+const showRef = useRef(null);
+const { scrollYProgress: showP } = useScroll({ target: showRef, offset: ["start end", "start 10%"] });
+
+const tilt   = useTransform(showP, [0, 1], [24, 0]);    // leaning back 24° → flat
+const grow   = useTransform(showP, [0, 1], [0.9, 1]);   // 90% size → 100%
+const driftA = useTransform(showP, [0, 1], [160, 0]);   // left float: 160px lower → in place
+const driftB = useTransform(showP, [0, 1], [220, 0]);   // right float: 220px lower → in place
+
+<motion.div className="pd-main-shot" style={{ rotateX: tilt, scale: grow }}> … </motion.div>
+<motion.div className="pd-float f1" style={{ y: driftA, rotate: -3 }}> … </motion.div>
+<motion.div className="pd-float f2" style={{ y: driftB, rotate: 3 }}> … </motion.div>
+```
+
+### Step 3: make the tilt look 3D
+```css
+.pd-show      { perspective: 1600px; }        /* how far away the "camera" is: smaller = stronger 3D */
+.pd-main-shot { transform-origin: 50% 100%; } /* hinges on its bottom edge, like a laptop lid */
+```
+
+### Why it feels deep
+- **Different speeds = depth (parallax).** The two floats travel different distances (160px and 220px) over the same scroll, so they seem closer to you than the big screen. Things nearer to your eye move faster.
+- **Small rotations (`-3°` and `3°`)** make the stack look casually placed instead of lined up on a grid.
+- **Scroll-linked, not timed:** if you scroll slowly, it moves slowly. Scroll back up and it reverses. You control it.
+- **Phones:** the floats are hidden (`.pd-float { display: none }`) and the tilt is turned off (`style={small ? undefined : …}`), so a small screen just shows one clean screenshot.
+
+### Reuse it somewhere else
+1. Put a `ref` on the section.
+2. Call `useScroll({ target: ref, offset: [...] })`.
+3. Map the progress with `useTransform` into whatever you want: `rotateX`, `scale`, `y`, `opacity`.
+4. Pass the results through `style` on a `motion.div`.
 
 ---
 
@@ -619,7 +706,338 @@ This is the same trick as the page curtain: **cover → swap → uncover**, so y
 
 ---
 
-## 18. Phones and accessibility
+## 18. The `Browser` frame: why every screenshot has a window bar
+
+**What you see:** every project screenshot on the case-study page sits inside a fake browser window: a light gray bar with red, yellow and green dots, and sometimes a little address pill with the project name.
+
+**Why it's there:**
+- **Context.** A screenshot on its own floats in space. Inside a window frame, people read it right away as "this is a real website or app".
+- **Consistency.** Your screenshots have different sizes and edges: some have a dark sidebar, some are white. The frame gives them all the same rounded edge, shadow and top bar, so they look like one set.
+- **Premium feel.** Design studios use this "device frame" look to show their work.
+- **It's also a button.** Clicking the frame opens the full-size screenshot.
+
+**Where:** the `Browser` component at the top of `src/pages/detail.jsx`, plus the `.browser` styles in `src/css/detail.css`
+
+```jsx
+// A screenshot inside a simple browser window frame
+function Browser({ src, alt, label, className = "", onOpen }) {
+  return (
+    <button type="button" className={`browser ${className}`} onClick={onOpen}
+            aria-label={`View ${alt} full size`}>
+      <span className="browser-bar" aria-hidden="true">
+        <i /><i /><i />                 {/* the 3 dots */}
+        {label && <span>{label}</span>} {/* optional address pill */}
+      </span>
+      <img src={src} alt={alt} loading="lazy" />
+    </button>
+  );
+}
+
+// using it
+<Browser src={pro.img} alt="GymTrack Check-in desk" label="GymTrack · Check-in desk"
+         onOpen={() => setView(pro.img)} />
+```
+
+```css
+.browser {
+  display: block; width: 100%; padding: 0; border: 0;
+  border-radius: 16px; overflow: hidden;        /* rounds the image corners too */
+  background: #fff; cursor: zoom-in;            /* a magnifier cursor hints "click to enlarge" */
+  box-shadow: 0 60px 120px -30px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+}
+.browser-bar { position: relative; height: 38px; display: flex; align-items: center;
+               gap: 7px; padding: 0 16px; background: #EEF1F7; }
+.browser-bar i { width: 11px; height: 11px; border-radius: 9px; }
+.browser-bar i:nth-child(1) { background: #FF5F57; }   /* red */
+.browser-bar i:nth-child(2) { background: #FEBC2E; }   /* yellow */
+.browser-bar i:nth-child(3) { background: #28C840; }   /* green */
+.browser-bar span { position: absolute; left: 50%; transform: translateX(-50%);   /* centered pill */
+                    padding: 5px 60px; border-radius: 8px; background: #fff;
+                    font: 500 12px var(--sans); color: #6b7590; }
+```
+
+**Details worth knowing:**
+- It's a `<button>`, not a `<div>`, so it works with the keyboard (Tab + Enter) and screen readers announce it as clickable.
+- The dots are drawn with CSS, with no images: three empty `<i>` tags colored with `:nth-child`.
+- `aria-hidden="true"` on the bar keeps screen readers from reading out the decoration.
+- On phones the bar shrinks (26px tall, 8px dots) so it doesn't take up too much of a small screenshot.
+- The "Next case study" panel uses only the bar part (`.browser-bar`) over its peek image, so it matches.
+
+---
+
+## 19. Full-size view (lightbox) for screenshots and certificates
+
+**Where:** `src/pages/detail.jsx` (`view` state) and `src/pages/certificates.jsx` (`open` state)
+
+```jsx
+const [view, setView] = useState(null);           // null = closed, otherwise the image to show
+
+// Esc closes it, listening only while it's open
+useEffect(() => {
+  if (!view) return;
+  const onKey = (e) => e.key === "Escape" && setView(null);
+  window.addEventListener("keydown", onKey);
+  return () => window.removeEventListener("keydown", onKey);
+}, [view]);
+
+{view && (
+  <div className="pd-lightbox" onClick={() => setView(null)}>          {/* click the dark area = close */}
+    <img src={view} alt="" onClick={(e) => e.stopPropagation()} />    {/* clicking the image doesn't close */}
+    <button type="button" className="pd-close mono" onClick={() => setView(null)}>Close ✕</button>
+  </div>
+)}
+```
+
+```css
+.pd-lightbox { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center;
+               background: rgba(6,10,24,.85); backdrop-filter: blur(10px); }  /* frosted, dark */
+```
+
+The certificate version also animates in: the backdrop fades in and the image rises from 92% size.
+```css
+.cert-lightbox     { animation: cert-fade .4s var(--ease); }
+.cert-lightbox img { animation: cert-rise .6s var(--ease); }
+@keyframes cert-fade { from { opacity: 0; } }
+@keyframes cert-rise { from { transform: scale(.92) translateY(20px); } }
+```
+
+Writing only the `from` step means "start here and animate to the element's normal style".
+
+---
+
+## 20. Each project gets its own color
+
+**What you see:** GymTrack's case study is blue, Appoint's is purple, Faculty Evaluation's is green. That covers the label pill, the numbers in "What I built", the gallery progress bar and the glow behind the showcase.
+
+**Where:** `theme` in `src/data/data.jsx`, applied in `src/pages/detail.jsx`
+
+The trick is to set CSS variables in an **inline `style`** on the page wrapper. Everything inside reads them:
+
+```js
+// data.jsx
+theme: { color: "#2E4FC7", soft: "#E6ECFF", glow: "rgba(120,150,255,.28)" },
+```
+```jsx
+// detail.jsx
+const accent = {
+  "--proj":      pro.theme?.color ?? "#2E4FC7",   // ?? = fallback if theme is missing
+  "--proj-soft": pro.theme?.soft  ?? "#E6ECFF",
+  "--proj-glow": pro.theme?.glow  ?? "rgba(120,150,255,.28)",
+};
+<main className="pd" style={accent}> … </main>
+```
+```css
+.pd-pill          { background: var(--proj-soft); color: var(--proj); }
+.pd-built li span { color: var(--proj); }
+.pd-progress i    { background: var(--proj); }
+.pd-show { background: radial-gradient(70% 60% at 50% 0%, var(--proj-glow), transparent 70%), var(--ink); }
+```
+
+This way there's one stylesheet and one template, and the colors still differ per project. A new project only needs a `theme` line.
+
+---
+
+## 21. Work cards: bento grid, hover zoom and number pill
+
+**Where:** `src/pages/featured.jsx` and `src/css/work.css`
+
+**Wide first card, then two per row:** the grid has 2 columns, and the first card stretches across both.
+```jsx
+<Reveal className={`case${i === 0 ? " wide" : ""}`}> … </Reveal>
+```
+```css
+.bento     { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.case.wide { grid-column: 1 / -1; }              /* from the first line to the last = full width */
+.case.wide .case-shot { aspect-ratio: 16 / 6.6; }/* wider, shorter banner */
+```
+
+**Hover zoom inside the frame:** the image grows, but the frame has `overflow: hidden`, so it zooms within its box instead of growing bigger.
+```css
+.case-shot              { overflow: hidden; border-radius: 14px; aspect-ratio: 16 / 8.4; }
+.case-shot img          { object-fit: cover; object-position: top; transition: transform 1.2s var(--ease); }
+.case:hover .case-shot img { transform: scale(1.045); }
+.case-shot::after       { content: ''; position: absolute; inset: 0;        /* soft dark fade at the bottom */
+                          background: linear-gradient(180deg, transparent 55%, rgba(6,10,24,.55)); }
+```
+`object-fit: cover` + `object-position: top` fill the box without stretching and always show the top of the website, where the important part usually is.
+
+**"01 / 03" pill:** a frosted-glass badge in the corner.
+```css
+.case-num { position: absolute; top: 28px; right: 28px; z-index: 2;
+            background: rgba(6,10,24,.7); backdrop-filter: blur(8px);
+            padding: 7px 12px; border-radius: 99px; }
+```
+
+**Staggered arrival:** the two half-width cards come in one after the other, because the second gets a 0.12 s delay:
+```jsx
+delay={i === 0 ? 0 : ((i + 1) % 2) * 0.12}
+```
+
+---
+
+## 22. Toolkit grid with hairline dividers
+
+**Where:** `src/pages/stack.jsx` and `src/css/toolkit.css`
+
+**The 1px gap trick:** to draw thin lines between the 3 columns without adding borders to each one, the **grid's background** is set to the line color with a `1px` gap, and each column gets the page background. The 1px of background that shows through the gaps becomes the dividers.
+
+```css
+.stack-grid { display: grid; grid-template-columns: repeat(3, 1fr);
+              gap: 1px; background: var(--line);          /* lines = grid background through the gap */
+              border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+.stack-col  { background: var(--bgc); padding: 34px; }    /* each column covers the rest */
+```
+
+The content comes from a list in `data.jsx`, so adding a tool is a one-word edit:
+```js
+export const toolkit = [
+  { group: "Frontend", title: "Interfaces", tools: ["React", "Vite", "Tailwind CSS", …] },
+  …
+]
+```
+
+---
+
+## 23. Front page details
+
+**Where:** `src/pages/front.jsx` and `src/css/hero.css`
+
+**Your grid is unchanged.** `CursorGrid` covers the whole section behind the text:
+```css
+.front .cursor-grid { position: absolute; inset: 0; z-index: 0; }
+.front-inner        { position: relative; z-index: 1; pointer-events: none; }  /* text above the grid */
+.front-inner a      { pointer-events: auto; }                                 /* but buttons stay clickable */
+```
+`pointer-events: none` on the text layer lets the mouse "fall through" the big ANGHEL letters, so the grid still lights up under them.
+
+**Soft blue glow at the bottom:**
+```css
+.front-aura { position: absolute; inset: auto -10% -40% -10%; height: 70%; pointer-events: none;
+              background: radial-gradient(60% 60% at 50% 100%, rgba(208,230,253,.55), transparent 70%); }
+```
+
+**Live Manila clock:** a small custom hook that re-reads the time every second:
+```jsx
+function useManilaClock() {
+  const read = () => new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Manila" });
+  const [time, setTime] = useState(read);
+  useEffect(() => {
+    const id = setInterval(() => setTime(read()), 1000);
+    return () => clearInterval(id);                       // stop when the page unmounts
+  }, []);
+  return time;
+}
+```
+
+**Room for the mascot:** the buttons keep 150px clear on the right so the mascot in the corner doesn't cover them (desktop only):
+```css
+.front-cta { padding-right: 150px; }
+@media (max-width: 760px) { .front-cta { padding-right: 0; } }
+```
+
+**Same timing for everything:** a small helper builds the fade props with a delay, so the info row, tagline and buttons arrive in order after the letters:
+```jsx
+const fade = (delay) => ({
+  initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 },
+  transition: { duration: 1, ease: EASE, delay },
+});
+<motion.div className="front-meta" {...fade(0.2)}>…</motion.div>
+<motion.p className="front-tagline" {...fade(0.75)}>…</motion.p>
+```
+
+---
+
+## 24. Top bar: highlighting the section you're in
+
+**Where:** `src/parts/nav.jsx`
+
+The active link is the **last section whose top has passed the middle of the screen**:
+```jsx
+LINKS.forEach(([, id]) => {
+  const el = document.getElementById(id);
+  if (el && el.getBoundingClientRect().top < window.innerHeight * 0.5) on = id;
+});
+setActive(on);
+
+<a href={`#${id}`} className={active === id ? "on" : ""}>{name}</a>
+```
+```css
+.topbar ul a    { color: var(--muted); transition: color .3s; }
+.topbar ul a.on { color: var(--text); }
+```
+
+---
+
+## 25. Labels, headings and buttons: the shared building blocks
+
+**Where:** `src/index.css`
+
+| Class | What it gives you |
+|---|---|
+| `.mono` | small uppercase label text: Inter Tight, 12px, wide letter spacing, numbers that line up (`tabular-nums`). A plain 0, no slash |
+| `.label` | the `(01) — About` row with a line running to the right (`::after { flex: 1; height: 1px }`) |
+| `.big-h` | big section heading, 48–104px with tight letter spacing (`-0.04em`) |
+| `em` | Instrument Serif italic in the accent color: `<em>work</em>` |
+| `.btn` / `.btn.primary` | round pill buttons; primary is orange; the `→` (`.arr`) slides 4px on hover |
+| `.chip` | small rounded tag that glows in the accent color on hover |
+| `.wrap` | centers content, max 1320px, with side padding that shrinks on phones |
+| `.sec` | standard section spacing (160px top/bottom, 100px on phones) |
+| `.panel` | the rounded navy card look for dark sections |
+
+**Font sizes that scale with the screen, using `clamp()`:**
+```css
+.big-h { font-size: clamp(48px, 6.4vw, 104px); }   /* never below 48, never above 104 */
+.name  { font-size: clamp(4.6rem, 22.5vw, 330px); }
+```
+
+**A soft glow made with `color-mix()`,** so it uses whatever accent color the section has:
+```css
+.chip:hover { box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 22%, transparent); }
+```
+
+---
+
+## 26. Copy-email button
+
+**Where:** `src/pages/contact.jsx`
+
+```jsx
+const [copied, setCopied] = useState(false);
+const copyEmail = async () => {
+  try {
+    await navigator.clipboard.writeText(socials.email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);              // back to "Copy" after 2s
+  } catch {
+    window.location.href = `mailto:${socials.email}`;    // if copying isn't allowed, open email instead
+  }
+};
+
+<button className={`copy mono${copied ? " done" : ""}`} onClick={copyEmail}>
+  {copied ? "Copied ✓" : "Copy"}
+</button>
+```
+
+---
+
+## 27. "Next case study" panel
+
+**Where:** the end of `src/pages/detail.jsx` and `.pd-next` in `detail.css`
+
+**What you see:** a big navy panel with the next project's name. Below it, the top of its screenshot peeks up from the bottom edge. On hover, the name slides right and the screenshot rises fully into view.
+
+```css
+.pd-next       { display: block; overflow: clip; }              /* hides the part of the peek below the edge */
+.pd-next h2    { transition: transform .8s var(--ease); }
+.pd-next:hover h2 { transform: translateX(24px); }
+.pd-peek       { transform: translateY(40px); transition: transform 1s var(--ease); }
+.pd-next:hover .pd-peek { transform: none; }
+```
+It wraps around to the first project after the last one: `project[(index + 1) % project.length]`. It uses the curtain transition and `data-cursor="Next case →"`.
+
+---
+
+## 28. Phones and accessibility
 
 - **Every section has its own `@media (max-width: 760px)` block** at the bottom of its CSS file. Sticky and sideways effects switch off on phones and become normal lists.
 - **Hover-only effects** (the cursor and the certificate preview) only run where `(hover: hover) and (pointer: fine)` is true. On phones, the certificate image is shown in the row instead.
