@@ -49,7 +49,10 @@ function Detail() {
   const index = project.findIndex((p) => p.id === Number(id));
   const pro = project[index];
   const next = project[(index + 1) % project.length];
-  const screens = pro ? [pro.img, pro.img1, pro.img2, pro.img3].filter(Boolean) : [];
+  // img, img1, img2 … img9: every screenshot the project has, in order
+  const screens = pro
+    ? [pro.img, ...[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => pro[`img${n}`])].filter(Boolean)
+    : [];
   const caption = (i) => pro?.captions?.[i] ?? `Screen ${i + 1}`;
 
   const [view, setView] = useState(null);

@@ -78,7 +78,8 @@ export const toolkit = [
   - kind, short: the small label and one-line summary on the home page Work cards
   - platform, builtFor: shown in the info strip at the top of the case-study page
   - theme: the project's own accent color on its case-study page
-  - captions: one name per screenshot (img, img1, img2, img3), shown in the Screens gallery
+  - img, img1, img2 … img9: screenshots, in order (img is the cover)
+  - captions: one name per screenshot, in the same order, shown in the Screens gallery
   - role, problem, built: the case-study part of the detail page. These are
     drafts, rewrite them in your own words and add a real result if you have one
 */
@@ -148,7 +149,6 @@ export const project = [
     img2: nwssu2,
     img3: nwssu3,
     img4: nwssu4,
-    img4: c4,
     live: "",
     github: "",
     role: "Capstone project, team of 5",
@@ -191,6 +191,7 @@ export const project = [
     img1: c1,
     img2: c2,
     img3: c3,
+    img4: c4,
     live: "",
     github: "",
     role: "Solo project for a church office",
