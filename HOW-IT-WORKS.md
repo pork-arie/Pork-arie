@@ -294,13 +294,65 @@ const navigate = useNavigate();
 - Only `transform` is animated.
 - The two `requestAnimationFrame` calls wait 2 frames so the browser applies "no transition" before the transition is turned back on.
 
-**Going back:** `/#work` brings you back to the Work section. A small effect in `featured.jsx` scrolls to whatever section the `#hash` names:
+### Going back (case study → home)
+
+It's the same curtain in the other direction. On the case-study page, a small helper `go(to)` wraps `goWithCurtain`, and the links use it:
+
+```jsx
+// src/pages/detail.jsx
+const nav = useNavigate();
+const go = (to) => (e) => {
+  e.preventDefault();
+  goWithCurtain(nav, to);
+};
+
+<a className="pd-back" href="/#work" onClick={go("/#work")}>← All projects</a>  {/* back to Work */}
+<a className="brand" href="/" onClick={go("/")}>ANGHEL</a>                       {/* back to top */}
+<a href={`/detail/${next.id}`} onClick={go(`/detail/${next.id}`)}>…</a>         {/* next project */}
+<a href="/#contact" onClick={go("/#contact")}>Start a project →</a>             {/* to the form */}
+```
+
+Then the home page has to scroll to the section named after the `#`. React Router doesn't do this by itself, so a small effect in `featured.jsx` does it:
 ```jsx
 useEffect(() => {
-  const id = location.hash === "#proj" ? "work" : location.hash.slice(1);
+  const id = location.hash === "#proj" ? "work" : location.hash.slice(1); // "#work" → "work"
   if (id) document.getElementById(id)?.scrollIntoView();
 }, [location.hash]);
 ```
+
+The order matters. `goWithCurtain` runs `window.scrollTo(0, 0)` right after `navigate()`, and then the effect above runs and jumps to `#work`. Both happen while the curtain is still covering the screen, so you never see the jump.
+
+> The browser's own back button (or a phone's back swipe) skips the curtain. That's normal: it's a browser action, not one of your links, so it changes the page instantly.
+
+### Setting it up yourself: the 3 pieces
+
+1. **The curtain element:** rendered once, for the whole app, in `src/App.jsx`:
+   ```jsx
+   <div className="curtain" aria-hidden="true" />
+   ```
+2. **The CSS:** the 4 states in `src/index.css` (`.curtain`, `.pt-leave`, `.pt-arrive`, `.pt-reset`), shown above.
+3. **The function:** `goWithCurtain(navigate, to)` from `src/components/transition.js`. Call it in any link's `onClick` after `e.preventDefault()`.
+
+To use it on a new link anywhere:
+```jsx
+import { useNavigate } from "react-router-dom";
+import { goWithCurtain } from "../components/transition";
+
+const navigate = useNavigate();
+<a href="/somewhere" onClick={(e) => { e.preventDefault(); goWithCurtain(navigate, "/somewhere"); }}>Go</a>
+```
+
+**Timeline of one click (about 1.5 s total):**
+
+| Time | What happens |
+|---|---|
+| 0 ms | `pt-leave` added → curtain slides up from the bottom and covers the screen (0.7 s) |
+| 700 ms | page changes behind it, scroll resets (or jumps to `#work`), `pt-arrive` added → curtain slides off the top (0.7 s) |
+| 1450 ms | `pt-reset` → curtain snaps back below the screen with no animation, ready for the next click |
+
+**Want it faster or slower?** Change `COVER` in `transition.js` **and** the `0.7s` in `.curtain`'s `transition` in `index.css`. Keep them the same.
+
+**Different color?** Change `background: var(--navy)` on `.curtain`. You could even give it your orange.
 
 ---
 
