@@ -22,7 +22,7 @@ The libraries involved are ones the project already had:
 6. The page transition (navy curtain)
 7. Light and dark sections
 8. A top bar that changes color
-9. The custom cursor
+9. **The custom cursor: full guide** (how to make one, and how this one works)
 10. Process: stays in place while a line draws
 11. Gallery that slides sideways
 12. **Stacked screenshots that start small and grow on scroll**
@@ -429,51 +429,262 @@ const { scrolled, theme } = useBarTheme();
 
 ---
 
-## 9. The custom cursor
+## 9. The custom cursor: full guide
 
-**What you see:**
-- A small dot that is black over white and white over navy.
-- It becomes a ring over links.
-- It becomes a circle that says "View case →" over projects.
+**What you see** (mouse and trackpad only):
+- A small **dot** follows your pointer. It's **black over white** sections and **white over navy** ones, without any code checking the colors.
+- Over a **link or button** it grows into a **ring**.
+- Over a **project card** it grows into a big **light-blue circle that says "VIEW CASE →"** ("NEXT CASE →" on the case-study page).
+- On **phones and tablets** it doesn't exist, so the normal touch behavior stays.
 
-**Where:** `src/components/Cursor.jsx` and `src/index.css`
+**Where:**
+- `src/components/Cursor.jsx`: the component (JavaScript)
+- `src/index.css`: the "custom cursor" block (looks)
+- `src/App.jsx`: where it's placed once with `<Cursor />`
 
-**Trick 1: color that adapts by itself.** The dot is white with `mix-blend-mode: difference`, which inverts whatever is underneath. White on a white background comes out black, and white on navy stays light.
+### 9.1 How it works: the idea in 5 steps
+
+1. **Hide the real cursor** with CSS `cursor: none`.
+2. **Draw your own** cursor: an ordinary `<div>` that is `position: fixed` (stays in place on screen while the page scrolls) and sits above everything.
+3. **Move it** to the mouse position every time the mouse moves (`mousemove` gives `clientX` / `clientY`).
+4. **Check what's under the mouse** on every move. If it's a link, add a class that turns the dot into a ring. If the element has `data-cursor="text"`, add a class that turns it into a labelled circle.
+5. **Let CSS animate** the size changes with a `transition`, so the dot smoothly grows and shrinks instead of jumping.
+
+That's all a custom cursor is: a hidden real cursor plus a `div` that follows the mouse and changes its class.
+
+### 9.2 The full component
+
+```jsx
+// src/components/Cursor.jsx
+import { useEffect, useRef, useState } from "react";
+
+function Cursor() {
+  const ref = useRef(null);               // the cursor <div>, to move it directly
+  const [label, setLabel] = useState(""); // text shown in the big circle
+  const [mode, setMode] = useState("");   // "" (dot) | "is-link" (ring) | "is-label" (circle)
+
+  useEffect(() => {
+    // A. Only for real mice: phones/tablets stop here and never get a custom cursor
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    // B. Tell the CSS to hide the system cursor
+    document.documentElement.classList.add("has-cursor");
+
+    // C. Every mouse move: reposition + decide the shape
+    const move = (e) => {
+      if (ref.current) {
+        ref.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      }
+      const labelled = e.target.closest?.("[data-cursor]");
+      const link = e.target.closest?.("a, button, [role='button']");
+      if (labelled) {
+        setLabel(labelled.dataset.cursor); // the text from data-cursor="…"
+        setMode("is-label");
+      } else {
+        setMode(link ? "is-link" : "");
+      }
+    };
+
+    // D. While scrolling, the page moves under a still mouse, so what's under
+    //    the cursor changes; go back to the plain dot until the mouse moves again
+    const scroll = () => setMode("");
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("scroll", scroll, { passive: true });
+
+    // E. Clean up when the component unmounts
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("scroll", scroll);
+      document.documentElement.classList.remove("has-cursor");
+    };
+  }, []); // [] = set up once
+
+  return (
+    <div className={`cursor ${mode}`} ref={ref} aria-hidden="true">
+      <span>{label}</span>
+    </div>
+  );
+}
+
+export default Cursor;
+```
+
+Placed **once** for the whole site, after everything else, in `src/App.jsx`:
+```jsx
+import Cursor from './components/Cursor'
+…
+<Mascot … />
+<div className="grain" aria-hidden="true" />
+<div className="curtain" aria-hidden="true" />
+<Cursor />
+```
+
+### 9.3 Line by line: why each part is there
+
+| Code | Why |
+|---|---|
+| `useRef` for the position, `useState` for the shape | The mouse moves dozens of times a second. Writing the position straight to `ref.current.style` skips React re-rendering. The shape (`mode`) rarely changes, so state is fine there |
+| `transform: translate(x, y)` instead of `left` / `top` | `transform` moves the element on the GPU without recalculating the layout, so it stays smooth. `left` / `top` would stutter |
+| `matchMedia("(hover: hover) and (pointer: fine)")` | True only for a precise pointer that can hover: a mouse or trackpad. Phones report `hover: none`, so they skip everything |
+| `classList.add("has-cursor")` on `<html>` | The system cursor is hidden only when the custom one is actually running. If JavaScript fails, people still see a normal cursor |
+| `e.target.closest("[data-cursor]")` | `closest` walks up from the element under the mouse to its parents. Hovering the image *inside* a card still finds the card's `data-cursor` |
+| `"a, button, [role='button']"` | Everything clickable turns the dot into a ring |
+| the `?.` in `closest?.(…)` | Sometimes `e.target` is the page itself, which has no `closest`. `?.` skips it instead of crashing |
+| scroll → `setMode("")` | Without this, the "VIEW CASE" circle could stay on after you scroll away from a card |
+| `aria-hidden="true"` | Screen readers ignore it, since it's decoration |
+| the cleanup `return () => …` | Removes the listeners and shows the normal cursor again if the component is removed |
+
+### 9.4 The CSS, explained
 
 ```css
-.cursor {
-  position: fixed; left: 0; top: 0; z-index: 10001;
-  width: 10px; height: 10px; margin: -5px 0 0 -5px;   /* centered on the pointer */
-  border-radius: 99px; background: #fff;
-  mix-blend-mode: difference;
-  pointer-events: none;                               /* never blocks clicks */
-  transition: width .45s var(--ease), height .45s var(--ease), margin .45s var(--ease);
+/* src/index.css */
+
+.cursor { display: none; }                  /* default: no custom cursor (phones) */
+
+@media (hover: hover) and (pointer: fine) { /* only mouse/trackpad screens */
+
+  /* 1. hide the real cursor, but only once Cursor.jsx has added .has-cursor */
+  html.has-cursor,
+  html.has-cursor a,
+  html.has-cursor button { cursor: none; }
+
+  /* 2. the dot */
+  .cursor {
+    position: fixed; left: 0; top: 0;       /* starts at the top-left corner; transform moves it */
+    z-index: 10001;                         /* above everything, even the page curtain */
+    pointer-events: none;                   /* clicks pass straight through it */
+
+    width: 10px; height: 10px;
+    margin: -5px 0 0 -5px;                  /* half the size, negative = centered on the pointer */
+    border-radius: 99px;                    /* a circle */
+    background: #fff;
+    mix-blend-mode: difference;             /* ⭐ the color trick, see 9.5 */
+
+    display: grid; place-items: center;     /* centers the label text */
+    font: 500 12px var(--label); letter-spacing: .06em; text-transform: uppercase;
+    color: var(--navy); white-space: nowrap; overflow: hidden;
+
+    /* 3. animate shape changes smoothly with the site's easing curve */
+    transition: width .45s var(--ease), height .45s var(--ease),
+                margin .45s var(--ease), background .3s;
+  }
+
+  /* the label text is invisible on the small dot */
+  .cursor span { opacity: 0; transition: opacity .2s; }
+
+  /* 4. over [data-cursor]: big light-blue circle with text */
+  .cursor.is-label {
+    width: 120px; height: 120px; margin: -60px 0 0 -60px; /* still centered: half of 120 */
+    background: var(--ice);
+    mix-blend-mode: normal;                 /* turn the inverting off so the blue stays blue */
+  }
+  .cursor.is-label span { opacity: 1; transition-delay: .15s; } /* text fades in after it grows */
+
+  /* 5. over links: an outlined ring */
+  .cursor.is-link {
+    width: 44px; height: 44px; margin: -22px 0 0 -22px;
+    background: transparent; border: 1px solid #fff;
+  }
 }
-.cursor.is-label { width: 120px; height: 120px; margin: -60px 0 0 -60px;
-                   background: var(--ice); mix-blend-mode: normal; }
-.cursor.is-link  { width: 44px; height: 44px; margin: -22px 0 0 -22px;
-                   background: transparent; border: 1px solid #fff; }
 ```
 
-**Trick 2: label anything with an HTML attribute.**
+**Why the `margin` changes with the size:** `translate(x, y)` puts the cursor's **top-left corner** on the mouse. A negative margin of half the width and height moves its **center** onto the mouse. When the dot grows from 10px to 120px, the margin grows from -5px to -60px, so it grows outward from the pointer instead of to the bottom-right.
+
+### 9.5 The color trick: `mix-blend-mode: difference`
+
+`difference` subtracts the colors under the element from its own color:
+
+| Cursor color | Background | Result you see |
+|---|---|---|
+| white `#fff` | white section `#fff` | **black** (white − white = black) |
+| white `#fff` | navy panel `#060A18` | **almost white** (white − dark = light) |
+| white `#fff` | a photo | the photo's colors inverted, which is a fun effect |
+
+So one white dot is always visible on both your white and navy sections, without any JavaScript checking colors. On the big label circle it's turned off (`mix-blend-mode: normal`), because the light-blue fill and navy text need to show as they are.
+
+### 9.6 Labelling anything with `data-cursor`
+
+Add the attribute to any element and the cursor shows that text over it. No other code is needed:
+
 ```jsx
-<Link to="/detail/1" data-cursor="View case →">…</Link>
-```
-```js
-const move = (e) => {
-  ref.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`; // transform = smooth
-  const labelled = e.target.closest("[data-cursor]");
-  const link = e.target.closest("a, button, [role='button']");
-  if (labelled) { setLabel(labelled.dataset.cursor); setMode("is-label"); }
-  else setMode(link ? "is-link" : "");
-};
+// src/pages/featured.jsx: Work cards
+<Link to={`/detail/${pro.id}`} data-cursor="View case →">…</Link>
+
+// src/pages/detail.jsx: the next project panel
+<a className="panel pd-next" href={`/detail/${next.id}`} data-cursor="Next case →">…</a>
+
+// your own ideas
+<img src={photo} data-cursor="Hi! 👋" />
+<a href={cvPdf} data-cursor="Download ↓">My CV</a>
 ```
 
-**Trick 3: only on mouse devices.** Phones keep their normal behavior:
-```js
-if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-document.documentElement.classList.add("has-cursor"); // hides the system cursor via CSS
+Keep labels short, about 2–3 words. The circle is 120px wide and `white-space: nowrap` keeps the text on one line.
+
+### 9.7 Making your own custom cursor from scratch
+
+Here's the minimum version for any other project, plain React plus CSS:
+
+```jsx
+// MyCursor.jsx
+import { useEffect, useRef } from "react";
+
+export default function MyCursor() {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!matchMedia("(pointer: fine)").matches) return;
+    const move = (e) =>
+      (ref.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`);
+    addEventListener("mousemove", move);
+    return () => removeEventListener("mousemove", move);
+  }, []);
+  return <div className="my-cursor" ref={ref} />;
+}
 ```
+```css
+@media (pointer: fine) {
+  body { cursor: none; }
+  .my-cursor {
+    position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none;
+    width: 16px; height: 16px; margin: -8px 0 0 -8px;
+    border-radius: 50%; background: #fff; mix-blend-mode: difference;
+  }
+}
+```
+
+Then add hover shapes the same way as in 9.2 and 9.4: check `e.target.closest(...)`, set a class, and style that class.
+
+### 9.8 Customizing yours
+
+| I want… | Change |
+|---|---|
+| a bigger dot | `.cursor` width/height to e.g. `14px`, margin to `-7px 0 0 -7px` |
+| an orange dot | `background: var(--signal)` and remove `mix-blend-mode` (it would invert the orange into blue) |
+| a different ring size over links | `.cursor.is-link` width/height + the matching negative margin |
+| a different circle color | `.cursor.is-label { background: … }` |
+| faster or slower growing | the `.45s` values in `transition` |
+| the system cursor back | delete `<Cursor />` from `App.jsx` |
+
+**Extra: a trailing ("lazy") cursor.** If you'd like the dot to lag softly behind the mouse, ease it toward the mouse on every frame. This is the same technique the certificate preview uses (section 13):
+
+```js
+let tx = 0, ty = 0, x = 0, y = 0;
+addEventListener("mousemove", (e) => { tx = e.clientX; ty = e.clientY; });
+(function tick() {
+  x += (tx - x) * 0.2;  // 0.2 = how quickly it catches up (1 = no lag)
+  y += (ty - y) * 0.2;
+  ref.current.style.transform = `translate(${x}px, ${y}px)`;
+  requestAnimationFrame(tick);
+})();
+```
+
+### 9.9 Mistakes to avoid
+
+- **Forgetting `pointer-events: none`.** The cursor div sits right under your mouse, so it would "catch" every click and nothing on the page would be clickable.
+- **Moving it with `left` / `top`.** That works, but it stutters. Use `transform`.
+- **Hiding the system cursor on phones.** Phones have no cursor, and hiding it can break tap highlights. Always wrap it in the `(hover: hover) and (pointer: fine)` media query.
+- **Text inputs.** With `cursor: none` everywhere, the I-beam over text fields disappears too. That's why this site only hides it on `html`, `a` and `button`, so inputs keep their normal text cursor.
+- **A z-index that's too low.** It must be above everything (`10001` here), or it disappears behind modals and the curtain.
 
 ---
 
