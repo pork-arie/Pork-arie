@@ -53,6 +53,8 @@ The libraries involved are ones the project already had:
 31. Minimal Process line
 32. Minimal horizontal gallery
 33. **Mistakes checklist**: every bug from practice
+34. Minimal page curtain (navy wipe between pages)
+35. Minimal hover preview that follows the cursor (certificates)
 
 Plus a quick recipe for adding your own section, right after section 28.
 
@@ -1529,3 +1531,190 @@ Every bug from practice, grouped. If something doesn't work, go down this list.
 |---|---|
 | `from 'motion'` in a project with `framer-motion` | `from "framer-motion"` (or `"motion/react"` if you installed the newer `motion` package) |
 | using `<Test />` with no `import Test from …` | every component tag needs an import |
+
+## 34. Minimal page curtain (navy wipe between pages)
+
+**What you see:** you click a project, a navy panel slides **up** over the page, the page changes behind it, and the panel slides off the top.
+
+**The idea in 3 steps:**
+```
+1. COVER    the panel slides up from below and covers the screen
+2. SWAP     the page changes behind it (hidden)
+3. REVEAL   the panel keeps going up and off the top
+```
+The panel is **always on the page**, parked below the screen. Classes on `<body>` move it.
+
+**1. The panel:** once in `App.jsx`, outside `<Routes>`:
+```jsx
+<div className="curtain" />
+```
+
+**2. The CSS** (`index.css`):
+```css
+.curtain {
+  position: fixed; inset: 0; z-index: 10000;
+  background: #0A122A;
+  transform: translateY(100%);                          /* parked BELOW the screen */
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;                                 /* never blocks clicks */
+}
+.pt-leave  .curtain { transform: translateY(0); }       /* 1. cover */
+.pt-arrive .curtain { transform: translateY(-100%); }   /* 3. slide off the top */
+.pt-reset  .curtain { transition: none; }               /* jump back down invisibly */
+```
+
+**3. The function** (`src/transition.js`):
+```js
+export function goWithCurtain(navigate, to) {
+  const body = document.body;
+  body.classList.add("pt-leave");                       // 1. cover (0.7s)
+
+  setTimeout(() => {
+    navigate(to);                                       // 2. swap while hidden
+    window.scrollTo(0, 0);
+    body.classList.add("pt-arrive");                    // 3. reveal (0.7s)
+
+    setTimeout(() => {
+      body.classList.add("pt-reset");                   // 4. snap back below, no animation
+      body.classList.remove("pt-leave", "pt-arrive");
+      requestAnimationFrame(() => requestAnimationFrame(() => body.classList.remove("pt-reset")));
+    }, 750);
+  }, 700);
+}
+```
+
+**4. Use it on a link:**
+```jsx
+import { useNavigate } from "react-router-dom";
+import { goWithCurtain } from "../transition";
+
+const navigate = useNavigate();
+<a href="/detail/1" onClick={(e) => { e.preventDefault(); goWithCurtain(navigate, "/detail/1"); }}>
+  GymTrack
+</a>
+```
+
+| Time | Body class | Panel |
+|---|---|---|
+| 0s | `pt-leave` | slides up and covers the screen |
+| 0.7s | + `pt-arrive` | page changes, panel slides off the top |
+| 1.45s | `pt-reset`, then removed | jumps back below the screen, ready for the next click |
+
+**Rules:**
+- The `setTimeout` times (`700`) must match the CSS `0.7s`. Change both together.
+- `e.preventDefault()` stops the instant page change, so the curtain can run first.
+- `pt-reset` turns the transition off before moving the panel back down. Without it, you'd see it slide back up from the bottom.
+
+**Try:** `translateY` → `translateX` for a sideways wipe, or a different `background` color.
+
+## 35. Minimal hover preview that follows the cursor (certificates)
+
+**What you see:** hover a row in a list and a picture appears next to your cursor, follows it smoothly with a slight tilt, and disappears when you leave the row.
+
+**The idea in 3 steps:**
+```
+1. REMEMBER  which row is hovered (state) → decides WHICH image shows
+2. FOLLOW    every frame, move the preview a little closer to the mouse (ref + requestAnimationFrame)
+3. SHOW/HIDE a class fades and scales it in and out (CSS)
+```
+
+```jsx
+import { useEffect, useRef, useState } from "react";
+
+const CERTS = [
+  { name: "React Developer", img: "/cert1.png" },
+  { name: "Google Analytics", img: "/cert2.png" },
+  { name: "HubSpot Marketing", img: "/cert3.png" },
+];
+
+function CertList() {
+  const [hovered, setHovered] = useState(null);   // which cert is hovered (or null)
+  const previewRef = useRef(null);                // the floating preview box
+
+  // 2. follow the mouse smoothly
+  useEffect(() => {
+    let mouseX = 0, mouseY = 0;   // where the mouse is
+    let x = 0, y = 0;             // where the preview is
+    let frame;
+
+    const onMove = (e) => { mouseX = e.clientX; mouseY = e.clientY; };
+
+    const tick = () => {
+      x += (mouseX - x) * 0.14;   // move 14% of the remaining distance each frame
+      y += (mouseY - y) * 0.14;
+      const tilt = Math.max(-6, Math.min(6, (mouseX - x) * 0.08));   // lean while moving
+      if (previewRef.current) {
+        previewRef.current.style.transform = `translate(${x + 20}px, ${y - 100}px) rotate(${tilt}deg)`;
+      }
+      frame = requestAnimationFrame(tick);   // run again next frame (about 60× a second)
+    };
+
+    window.addEventListener("mousemove", onMove);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  return (
+    <>
+      {/* 1. the list: hovering a row sets which cert to show */}
+      {CERTS.map((c) => (
+        <div
+          key={c.name}
+          onMouseEnter={() => setHovered(c)}
+          onMouseLeave={() => setHovered(null)}
+          style={{ padding: "24px 0", borderBottom: "1px solid #ddd", fontSize: 28, cursor: "pointer" }}
+        >
+          {c.name}
+        </div>
+      ))}
+
+      {/* 3. the floating preview */}
+      <div ref={previewRef} className={`preview ${hovered ? "on" : ""}`}>
+        {hovered && <img src={hovered.img} alt="" />}
+      </div>
+    </>
+  );
+}
+```
+
+```css
+.preview {
+  position: fixed; left: 0; top: 0;    /* positioned by transform, relative to the screen */
+  width: 300px;
+  pointer-events: none;                /* never blocks hovering the rows */
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.4);
+  opacity: 0; scale: 0.6;              /* hidden by default */
+  transition: opacity .35s, scale .5s;
+}
+.preview.on { opacity: 1; scale: 1; }  /* shown while a row is hovered */
+.preview img { display: block; width: 100%; }
+```
+
+**Why it's built this way:**
+
+| Part | Why |
+|---|---|
+| `useState` for `hovered` | the **image** changes only when you enter or leave a row, so a re-render is fine there |
+| `useRef` + `style.transform` for the position | the position changes **60 times a second**; writing to the element directly skips React re-rendering |
+| `x += (mouseX - x) * 0.14` | the preview **chases** the mouse instead of jumping: smooth, slightly trailing. Bigger number = faster (`1` = glued to the cursor) |
+| `tilt` from `(mouseX - x)` | when it's far behind the mouse it leans more; when it catches up it straightens |
+| `position: fixed` | `clientX` / `clientY` are screen coordinates, so the preview must be positioned relative to the screen |
+| `pointer-events: none` | otherwise the preview sits under your cursor and "steals" the hover, so it flickers |
+| `cancelAnimationFrame` in the cleanup | stops the loop when you leave the page |
+
+**Phones:** there's no hover on touch screens. In the portfolio, the preview is hidden on phones (`@media (hover: none) { .preview { display: none; } }`) and each row shows its image instead.
+
+**Try:** change `0.14` to `0.05` (lazy) or `0.4` (snappy); change `+ 20` / `- 100` to place the preview on a different side of the cursor.
+
+**Mistakes to avoid:**
+
+| Problem | Fix |
+|---|---|
+| preview flickers on and off | add `pointer-events: none` to it |
+| preview appears far from the cursor | it must be `position: fixed` with `left: 0; top: 0`, so only `transform` moves it |
+| page gets slow | don't put the mouse position in `useState`; use a ref and `requestAnimationFrame` |
+| loop keeps running after leaving the page | `return () => cancelAnimationFrame(frame)` |
