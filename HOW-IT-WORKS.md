@@ -46,7 +46,15 @@ The libraries involved are ones the project already had:
 27. "Next case study" panel
 28. Phones and accessibility
 
-Plus a quick recipe for adding your own section at the end.
+**Part 3: practice cheat sheet**
+
+29. The sticky rule (the one you always forget)
+30. The 4 tools in one table
+31. Minimal Process line
+32. Minimal horizontal gallery
+33. **Mistakes checklist**: every bug from practice
+
+Plus a quick recipe for adding your own section, right after section 28.
 
 ---
 
@@ -1334,3 +1342,190 @@ function Awards() {
 ```
 
 Then add `<Awards />` in `src/App.jsx` where you want it. The top bar, theme colors and fade-ins all work automatically.
+
+---
+
+# Part 3: Practice cheat sheet (scroll effects)
+
+A short reference for building the scroll effects yourself, plus every mistake that came up while practicing, so you can check your code against it.
+
+## 29. The sticky rule (the one you always forget)
+
+A sticky screen **always** needs these 3, together:
+
+```js
+position: "sticky", top: 0, height: "100vh"
+```
+
+| Missing | What happens |
+|---|---|
+| `top: 0` | it never sticks; it scrolls away like normal |
+| `height: "100vh"` | only its content sticks (e.g. a thin bar), not a whole screen |
+| a **taller parent** (`height: "300vh"`) | there's no room to stay stuck, so it lets go right away |
+
+Add these two when the content is wider than the screen or should be centered:
+
+```js
+overflow: "hidden",                                                  // hides what's off-screen, no sideways scrollbar
+display: "flex", flexDirection: "column", justifyContent: "center"   // stacks and centers the content
+```
+
+The shape, every time:
+
+```
+<section ref={ref} style={{ height: "300vh" }}>          ← tall: scroll room
+  <div style={{ position: "sticky", top: 0, height: "100vh" }}>   ← sticky: the frozen screen
+    …things that move with scrollYProgress…
+  </div>
+</section>
+<div>next section</div>                                 ← OUTSIDE the tall section
+```
+
+## 30. The 4 tools in one table
+
+| Tool | Job | Example |
+|---|---|---|
+| `useScroll({ target: ref, offset: ["start start", "end end"] })` | **measures**: 0 → 1 while the screen is stuck | `const { scrollYProgress } = useScroll(…)` |
+| `useSpring(value, { stiffness: 120, damping: 30 })` | **smooths** a value so it glides | `const smooth = useSpring(scrollYProgress)` |
+| `useTransform(value, [0, 1], [a, b])` | **converts** 0 → 1 into anything else (pixels, degrees, opacity) | `const x = useTransform(smooth, [0, 1], [0, -distance])` |
+| `motion.div style={{ … }}` | **shows** it; only `motion.` elements can take these live values | `<motion.div style={{ x }} />` |
+
+- **`scaleX` already takes 0 → 1,** so a progress line uses the progress directly. Sliding needs pixels, so it goes through `useTransform` first.
+- **Two `useScroll`s in one component?** Rename them with a colon: `const { scrollYProgress: galP } = useScroll(…)`.
+- **Destructuring names:** with `{ }` the name must match exactly (`scrollYProgress`). With `[ ]` (like `useState`) you choose the names.
+
+## 31. Minimal Process line
+
+```jsx
+import { useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
+
+function ProcessScroll() {
+  const big = useRef(null);
+  const { scrollYProgress } = useScroll({ target: big, offset: ["start start", "end end"] });
+  const smooth = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+
+  return (
+    <section ref={big} style={{ height: "300vh" }}>
+      <div style={{ position: "sticky", top: 0, height: "100vh",
+                    display: "flex", flexDirection: "column", justifyContent: "center", padding: 40 }}>
+        <h1>How we work</h1>
+        <div style={{ height: 4, background: "#ddd" }}>                       {/* gray track */}
+          <motion.div style={{ height: "100%", background: "orange",           /* the fill */
+                               scaleX: smooth, transformOrigin: "left" }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+```
+
+## 32. Minimal horizontal gallery
+
+```jsx
+import { useLayoutEffect, useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+
+function HorizontalScroll() {
+  const sectionRef = useRef(null);   // the tall section → for useScroll
+  const rowRef = useRef(null);       // the card row → for measuring
+  const [distance, setDistance] = useState(0);
+
+  useLayoutEffect(() => {
+    const measure = () => setDistance(rowRef.current.scrollWidth - window.innerWidth);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
+  const smo = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+  const x = useTransform(smo, [0, 1], [0, -distance]);
+
+  return (
+    <section ref={sectionRef} style={{ height: "300vh" }}>
+      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden",
+                    display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "40px 0" }}>
+        <h2>My Projects</h2>                                                     {/* top */}
+        <div>                                                                     {/* bottom */}
+          <motion.div ref={rowRef} style={{ x, display: "flex", gap: 20 }}>
+            <div style={{ flex: "0 0 400px", height: 300, background: "red" }} />
+            <div style={{ flex: "0 0 400px", height: 300, background: "green" }} />
+            <div style={{ flex: "0 0 400px", height: 300, background: "blue" }} />
+            <div style={{ flex: "0 0 400px", height: 300, background: "orange" }} />
+          </motion.div>
+          <motion.div style={{ scaleX: smo, transformOrigin: "left", height: 6, background: "black", marginTop: 20 }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+```
+
+**Why the next section can't appear early:** progress `1` = the moment the sticky screen lets go = `x` at `-distance` = the last card fully in view.
+
+**`useLayoutEffect` vs `useEffect`:** both run after render. `useLayoutEffect` runs **before** the screen paints, so measuring there avoids a one-frame flicker. Use it for measuring sizes, and `useEffect` for everything else (fetching, timers).
+
+**The `resize` listener** re-measures when the window changes size (dragging the window, rotating a phone, opening DevTools). Without it the slide distance is only right at the size the page was opened at. The `return` cleanup removes the listener when the component goes away.
+
+## 33. Mistakes checklist
+
+Every bug from practice, grouped. If something doesn't work, go down this list.
+
+**Spelling and names (silently ignored or `undefined`)**
+
+| Wrong | Right |
+|---|---|
+| `postion` | `position` |
+| `transformOrgin` | `transformOrigin` |
+| `scrollYprogress` | `scrollYProgress` (capital P) |
+| `scrollwidth` | `scrollWidth` (capital W) |
+| `tyle={{ … }}` | `style={{ … }}` |
+| `const { scroll } = useScroll()` | `const { scrollYProgress } = useScroll()`, or rename: `{ scrollYProgress: scroll }` |
+| `function countUp` / `<countUp />` | components start with a **capital letter**: `CountUp` |
+
+**Values in `style={{ }}`**
+
+| Wrong | Right | Why |
+|---|---|---|
+| `display: flex` | `display: "flex"` | text values need quotes; without them it's a missing variable (crash) |
+| `style={{ x }}` when the variable is `A` | `style={{ x: A }}` | `{ x }` means `{ x: x }` |
+| `scaleX: x` (x = pixels) | `scaleX: smo` (0 → 1) | `scaleX` wants 0 → 1; pixels go on `x` |
+| `useSpring(sectionRef)` | `useSpring(scrollYProgress)` | smooth the **value**, not the element |
+| `useTransform(…, [0, -distance])` with an imported `distance` | use **your** state variable (`[0, -d]`) | the import is a framer helper function, so the result is NaN |
+| fill with no `background` or no `height` | add both | an empty `div` is invisible and 0px tall |
+
+**Structure**
+
+| Problem | Fix |
+|---|---|
+| progress line placed **after** the sticky div | put it **inside** the sticky div |
+| "next section" inside the tall section | put it **after** `</section>` |
+| sticky screen without `overflow: "hidden"` | add it, or the row makes a sideways scrollbar |
+| sticky screen without a `background` | content behind shows through while it's stuck |
+| tall section only `100vh` | make it `300vh` or more; equal height means no scroll room |
+| `useScroll` `target` on the card row | target the **tall section**; the row ref is only for measuring |
+| a parent with `overflow: hidden` or `auto` | breaks sticky; use `overflow: clip` on parents |
+| cards squeezing to fit the screen | give each card `flex: "0 0 400px"` (don't grow, don't shrink) |
+| `flexDirection: "column"` on the **card row** | it goes on the **sticky div** only; the card row stays a row |
+
+**Refs and effects**
+
+| Problem | Fix |
+|---|---|
+| `const ref = useRef(null)` but no `ref={ref}` on an element | `useScroll` / `useInView` have nothing to watch |
+| `useRef` declared **after** the `useScroll` that uses it | declare refs first |
+| `if (loading) return …` above the effect section | refs are `null` on the first render: move the effect into **its own component**, or guard with `if (loading) return;` and `[loading]` |
+| `const measure = setD(...)` | `const measure = () => setD(...)`: a function to call later needs `() =>` |
+| `animate(0, to, { duration: 2 }, onUpdate(...))` | everything goes inside **one** options object: `{ duration: 2, onUpdate: (v) => … }` |
+| `transition: [...]` for easing in `animate()` | the option is called `ease` |
+| `setIl(Math.round(words.length))` | use the progress: `Math.round(p * words.length)` |
+| a component returns `<p>` but is used inside another `<p>` | return `<b>` or `<span>`; HTML doesn't allow `<p>` inside `<p>` |
+| page reloads on button click inside a `<form>` | `<form onSubmit={(e) => e.preventDefault()}>` |
+
+**Imports**
+
+| Wrong | Right |
+|---|---|
+| `from 'motion'` in a project with `framer-motion` | `from "framer-motion"` (or `"motion/react"` if you installed the newer `motion` package) |
+| using `<Test />` with no `import Test from …` | every component tag needs an import |
