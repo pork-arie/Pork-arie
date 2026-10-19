@@ -31,40 +31,44 @@ function Featured() {
         </Reveal>
 
         <div className="bento">
-          {project.map((pro, i) => (
-            <Reveal
-              key={pro.id}
-              className={`case${i === 0 ? " wide" : ""}`}
-              delay={i === 0 ? 0 : ((i + 1) % 2) * 0.12}
-            >
-              <Link
-                to={`/detail/${pro.id}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  goWithCurtain(navigate, `/detail/${pro.id}`);
-                }}
-                data-cursor="View case →"
-                aria-label={`${pro.name} case study`}
+          {project.map((pro, i) => {
+            // the first card is wide; so is the last one if it would sit alone in its row
+            const wide = i === 0 || (i === project.length - 1 && i % 2 === 1);
+            return (
+              <Reveal
+                key={pro.id}
+                className={`case${wide ? " wide" : ""}`}
+                delay={i === 0 ? 0 : ((i + 1) % 2) * 0.12}
               >
-                <span className="case-num mono">{pad(i + 1)} / {pad(project.length)}</span>
-                <div className="case-shot">
-                  <img src={pro.img} alt={`${pro.name} screenshot`} loading="lazy" />
-                </div>
-                <div className="case-info">
-                  <div>
-                    {pro.kind && <span className="mono">{pro.kind}</span>}
-                    <h3>{pro.name}</h3>
-                    {i === 0 && pro.short && <p className="case-desc">{pro.short}</p>}
+                <Link
+                  to={`/detail/${pro.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    goWithCurtain(navigate, `/detail/${pro.id}`);
+                  }}
+                  data-cursor="View case →"
+                  aria-label={`${pro.name} case study`}
+                >
+                  <span className="case-num mono">{pad(i + 1)} / {pad(project.length)}</span>
+                  <div className="case-shot">
+                    <img src={pro.img} alt={`${pro.name} screenshot`} loading="lazy" />
                   </div>
-                  <div className="case-tags">
-                    {pro.stack.slice(0, i === 0 ? 4 : 2).map((t) => (
-                      <span key={t}>{t}</span>
-                    ))}
+                  <div className="case-info">
+                    <div>
+                      {pro.kind && <span className="mono">{pro.kind}</span>}
+                      <h3>{pro.name}</h3>
+                      {wide && pro.short && <p className="case-desc">{pro.short}</p>}
+                    </div>
+                    <div className="case-tags">
+                      {pro.stack.slice(0, wide ? 4 : 2).map((t) => (
+                        <span key={t}>{t}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
