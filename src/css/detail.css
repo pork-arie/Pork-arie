@@ -233,12 +233,17 @@
   justify-content: center;
   padding-top: 70px; /* clears the fixed top bar */
 }
+/* the pin is a flex column, so its .wrap children would shrink to their
+   content; the progress bar has no content, so it needs the full width */
+.pd-gal-pin > .wrap {
+  width: 100%;
+}
 .pd-gal-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   width: 100%;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 .pd-gal-head .big-h {
   margin-top: 18px;
@@ -249,7 +254,9 @@
   padding-left: clamp(16px, 4vw, 56px);
 }
 .pd-slide {
-  flex: 0 0 min(64vw, 880px);
+  /* as wide as fits, but never so tall that the caption and progress bar
+     get pushed below the screen (image is 16:9.6, so width = height × 1.67) */
+  flex: 0 0 min(64vw, 880px, calc((100vh - 400px) * 1.67));
 }
 .pd-slide .browser {
   box-shadow: 0 30px 70px -30px rgba(10, 18, 42, 0.35), 0 0 0 1px var(--line);
@@ -270,7 +277,7 @@
 .pd-progress {
   position: relative;
   height: 2px;
-  margin-top: 44px;
+  margin-top: 32px;
   background: var(--line);
 }
 .pd-progress i {
