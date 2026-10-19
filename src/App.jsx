@@ -16,6 +16,7 @@ import Testimonials from './pages/testimonials'
 import Mascot from './mascot'
 import Cursor from './components/Cursor'
 
+
 function App() {
   return (
     <>
@@ -35,6 +36,7 @@ function App() {
                 <Testimonials />
                 <Contact />
                 <Footer />
+                
               </>
             }
           />

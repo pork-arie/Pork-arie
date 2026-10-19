@@ -29,6 +29,12 @@ import ap3 from "../assets/certproj/ap3.webp";
 import ap4 from "../assets/certproj/ap4.webp";
 import ap5 from "../assets/certproj/ap5.webp";
 
+import bantay1 from "../assets/certproj/bantay-cover.webp"; // cover: 3 phones
+import bantay2 from "../assets/certproj/bantay-2.webp";     // Selling
+import bantay3 from "../assets/certproj/bantay-3.webp";     // Utang
+import bantay4 from "../assets/certproj/bantay-4.webp";     // Inventory
+import bantay5 from "../assets/certproj/bantay-5.webp";     // Profit forecast
+
 // Your links, used in the About icons, footer and contact section.
 // Leave a value as "" to hide that link.
 export const socials = {
@@ -130,7 +136,7 @@ export const project = [
   {
     id: 2,
     name: "Faculty Evaluation System",
-    kind: "NwSSU · Team of 5",
+    kind: "NwSSU · Solo Dev",
     platform: "Android app + web dashboard",
     builtFor: "Students, faculty & admins",
     theme: { color: "#14794A", soft: "#E3F5EA", glow: "rgba(60,200,130,.22)" },
@@ -151,7 +157,7 @@ export const project = [
     img4: nwssu4,
     live: "",
     github: "",
-    role: "Capstone project, team of 5",
+    role: "Solo Dev",
     problem:
       "Faculty evaluation was done on paper, which made collecting, computing and reporting ratings under CHED CMO No. 19 slow and error-prone.",
     built: [
@@ -170,8 +176,57 @@ export const project = [
       "Firestore",
     ],
   },
-  {
+    {
     id: 3,
+    name: "Bantay",
+    kind: "Point of sale & inventory · Solo project",
+    platform: "Android app (React Native · Expo)",
+    builtFor: "Sari-sari store owners & their staff",
+    theme: { color: "#16A34A", soft: "#DCFCE7", glow: "rgba(34,197,94,.28)" },
+    captions: [
+      "Selling (tingi or by pack)",
+      "Utang (credit) list",
+      "Inventory & low-stock alerts",
+      "Sales & profit forecast",
+    ],
+    short:
+      "A point of sale for sari-sari stores: sell by piece or pack, scan barcodes, track utang and stock, and see next month's profit, all offline.",
+    description:
+      "An offline-first mobile point of sale built with React Native, Expo and TypeScript. It handles sales by piece or by pack, barcode scanning, cash/GCash/utang payments, receipts, inventory, sales forecasting and staff accounts. Store data is encrypted on the phone with AES-256-GCM and never leaves it, so it works without internet.",
+    img: bantay1,
+    img1: bantay2,
+    img2: bantay3,
+    img3: bantay4,
+    img4: bantay5,
+    live: "",
+    github: "https://github.com/pork-arie/Bantay-app",
+    role: "Solo project: design, mobile app, data and security",
+    problem:
+      "Most sari-sari stores keep utang in a notebook and stock in their heads, so unpaid balances get forgotten, items run out without warning, and the owner can't tell how much they actually earn. Many also have no reliable internet.",
+    built: [
+      "Fast selling by piece (tingi) or by pack, with continuous barcode scanning straight into the cart",
+      "Cash, GCash and utang payments, with change computed and numbered receipts to print or share",
+      "Utang list per customer with credit limits and SMS reminders",
+      "Inventory with low-stock alerts, days-of-stock-left and an automatic shopping list",
+      "Sales history and a forecast of next week's and next month's sales and profit, plus a profit calculator",
+      "Staff PINs with limited access, an activity log, and voids that need the owner's PIN",
+      "Works fully offline: data encrypted on the device (AES-256-GCM), password-protected backup files",
+      "English, Filipino and Waray, light/dark mode and 8 accent colors",
+    ],
+    stack: [
+      "React Native",
+      "Expo",
+      "Expo Router",
+      "TypeScript",
+      "SQLite",
+      "Expo Crypto (AES-256-GCM)",
+      "Expo Camera",
+      "Reanimated",
+      "EAS Build",
+    ],
+  },
+  {
+    id: 4,
     name: "Appoint",
     kind: "Church office · Solo project",
     platform: "Web app",
@@ -215,7 +270,7 @@ export const project = [
     ],
   },
   {
-    id: 4,
+    id: 5,
     name: "Ambitpolong",
     kind: "Church youth app · Solo project",
     platform: "Installable web app (PWA)",
